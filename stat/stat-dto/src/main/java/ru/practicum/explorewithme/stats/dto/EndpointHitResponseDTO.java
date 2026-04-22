@@ -1,8 +1,13 @@
 package ru.practicum.explorewithme.stats.dto;
 
-public record EndpointHitResponseDTO(
-        String description
-) {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public final class EndpointHitResponseDTO {
+    private final String description;
+
     private static final String DEFAULT_DESCRIPTION = "Информация сохранена";
 
     public static EndpointHitResponseDTO createDefault() {
