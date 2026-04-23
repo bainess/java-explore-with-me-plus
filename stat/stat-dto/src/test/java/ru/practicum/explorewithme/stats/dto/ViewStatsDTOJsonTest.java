@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JsonTest
 class ViewStatsDTOJsonTest {
 
+    @SuppressWarnings("unused")
     @Autowired
     private JacksonTester<ViewStatsDTO> jacksonTester;
 

@@ -26,12 +26,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(StatsController.class)
 class StatsControllerTest {
 
+    @SuppressWarnings("unused")
     @Autowired
     private MockMvc mockMvc;
 
+    @SuppressWarnings("unused")
     @Autowired
     private ObjectMapper objectMapper;
 
+    @SuppressWarnings("unused")
     @MockBean
     private StatsService statsService;
 

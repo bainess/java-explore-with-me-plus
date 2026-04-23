@@ -12,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JsonTest
 class EndpointHitDTOJsonTest {
 
+    @SuppressWarnings("unused")
     @Autowired
     private JacksonTester<EndpointHitDTO> jacksonTester;
 
