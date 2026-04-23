@@ -24,10 +24,10 @@ public final class EndpointHitDTO {
     private String uri;
 
     @NotBlank(message = "ip не может быть пустым")
-    String ip;
+    private String ip;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private @NotNull(message = "Дата и время, когда был совершен запрос к эндпоинту, должна быть указана")
-    LocalDateTime timestamp;
+    @NotNull(message = "Дата и время, когда был совершен запрос к эндпоинту, должна быть указана")
+    private LocalDateTime timestamp;
 
 }
