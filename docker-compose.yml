@@ -1,7 +1,7 @@
 services:
-  stats-server:
-    build: ./stat/stat-server
-    container_name: stat-server
+  ewm-service:
+    build: ./stat/ewm-service
+    container_name: ewm-service
     ports:
       - "9090:9090"
     depends_on:
