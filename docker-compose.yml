@@ -14,7 +14,7 @@ services:
 
   stat-db:
     image: postgres:16.1
-    container_name: stat_db
+    container_name: stat-db
     ports:
       - "5432:5432"
     environment:
