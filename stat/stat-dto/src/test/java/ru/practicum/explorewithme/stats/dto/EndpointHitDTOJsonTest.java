@@ -29,16 +29,12 @@ class EndpointHitDTOJsonTest {
 
     @Test
     void testDeserialize() throws Exception {
-        // CHECKSTYLE:OFF
-        String content = """
-                {
-                    "app": "ewm-main-service",
-                    "uri": "/events",
-                    "ip": "127.0.0.1",
-                    "timestamp": "2025-01-01 10:00:00"
-                }
-                """;
-        // CHECKSTYLE:ON
+        String content = "{\n"
+                + "    \"app\": \"ewm-main-service\",\n"
+                + "    \"uri\": \"/events\",\n"
+                + "    \"ip\": \"127.0.0.1\",\n"
+                + "    \"timestamp\": \"2025-01-01 10:00:00\"\n"
+                + "}";
         var dto = jacksonTester.parse(content).getObject();
         assertThat(dto.getApp()).isEqualTo("ewm-main-service");
         assertThat(dto.getUri()).isEqualTo("/events");
@@ -49,16 +45,12 @@ class EndpointHitDTOJsonTest {
 
     @Test
     void testDeserialize_WithoutId() throws Exception {
-        // CHECKSTYLE:OFF
-        String content = """
-                {
-                    "app": "app",
-                    "uri": "/test",
-                    "ip": "10.0.0.1",
-                    "timestamp": "2024-11-20 00:00:00"
-                }
-                """;
-        // CHECKSTYLE:ON
+        String content = "{\n"
+                + "    \"app\": \"app\",\n"
+                + "    \"uri\": \"/test\",\n"
+                + "    \"ip\": \"10.0.0.1\",\n"
+                + "    \"timestamp\": \"2024-11-20 00:00:00\"\n"
+                + "}";
         var dto = jacksonTester.parse(content).getObject();
         assertThat(dto.getId()).isNull();
     }
