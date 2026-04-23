@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +16,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public final class EndpointHitDTO {
+    private Long id;
+
     @NotBlank(message = "Идентификатор сервиса не может быть пустым")
     private String app;
 
@@ -26,8 +27,8 @@ public final class EndpointHitDTO {
     @NotBlank(message = "ip не может быть пустым")
     private String ip;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @NotNull(message = "Дата и время, когда был совершен запрос к эндпоинту, должна быть указана")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 
 }
