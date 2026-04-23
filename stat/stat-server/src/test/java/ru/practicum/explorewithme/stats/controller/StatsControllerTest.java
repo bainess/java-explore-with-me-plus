@@ -59,6 +59,7 @@ class StatsControllerTest {
     @Test
     void hit_ValidationFail_ShouldReturn400() throws Exception {
         // Отсутствует поле "app"
+        // CHECKSTYLE:OFF
         String json = """
                 {
                     "uri": "/events",
@@ -66,6 +67,7 @@ class StatsControllerTest {
                     "timestamp": "2025-05-05 12:00:00"
                 }
                 """;
+        // CHECKSTYLE:ON
 
         mockMvc.perform(post("/hit")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -77,6 +79,7 @@ class StatsControllerTest {
 
     @Test
     void hit_InvalidTimestampFormat_ShouldReturn400() throws Exception {
+        // CHECKSTYLE:OFF
         String json = """
                 {
                     "app": "app",
@@ -85,6 +88,7 @@ class StatsControllerTest {
                     "timestamp": "12-05-2025"
                 }
                 """;
+        // CHECKSTYLE:ON
 
         mockMvc.perform(post("/hit")
                         .contentType(MediaType.APPLICATION_JSON)

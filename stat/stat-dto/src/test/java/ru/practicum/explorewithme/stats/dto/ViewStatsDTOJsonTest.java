@@ -25,6 +25,7 @@ class ViewStatsDTOJsonTest {
 
     @Test
     void testDeserialize() throws Exception {
+        // CHECKSTYLE:OFF
         String content = """
                 {
                     "app": "app1",
@@ -32,6 +33,7 @@ class ViewStatsDTOJsonTest {
                     "hits": 7
                 }
                 """;
+        // CHECKSTYLE:ON
         var dto = jacksonTester.parse(content).getObject();
         assertThat(dto.getApp()).isEqualTo("app1");
         assertThat(dto.getUri()).isEqualTo("/uri");

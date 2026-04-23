@@ -28,6 +28,7 @@ class EndpointHitDTOJsonTest {
 
     @Test
     void testDeserialize() throws Exception {
+        // CHECKSTYLE:OFF
         String content = """
                 {
                     "app": "ewm-main-service",
@@ -36,6 +37,7 @@ class EndpointHitDTOJsonTest {
                     "timestamp": "2025-01-01 10:00:00"
                 }
                 """;
+        // CHECKSTYLE:ON
         var dto = jacksonTester.parse(content).getObject();
         assertThat(dto.getApp()).isEqualTo("ewm-main-service");
         assertThat(dto.getUri()).isEqualTo("/events");
@@ -46,6 +48,7 @@ class EndpointHitDTOJsonTest {
 
     @Test
     void testDeserialize_WithoutId() throws Exception {
+        // CHECKSTYLE:OFF
         String content = """
                 {
                     "app": "app",
@@ -54,6 +57,7 @@ class EndpointHitDTOJsonTest {
                     "timestamp": "2024-11-20 00:00:00"
                 }
                 """;
+        // CHECKSTYLE:ON
         var dto = jacksonTester.parse(content).getObject();
         assertThat(dto.getId()).isNull();
     }
