@@ -2,11 +2,15 @@ package ru.practicum.explorewithme.stats.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ViewStatsDTO {
-    private final String app;
-    private final String uri;
-    private final Long hits;
+    private String app;
+    private String uri;
+    private Long hits;
 }
