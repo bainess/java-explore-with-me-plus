@@ -1,5 +1,6 @@
 package ru.practicum.explorewithme.stats.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -20,9 +21,7 @@ public class StatsController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public void hit(
-            @RequestBody EndpointHitDTO endpointHitDTO
-    ) {
+    public void hit(@Valid @RequestBody EndpointHitDTO endpointHitDTO) {
         statsService.hit(endpointHitDTO);
     }
 
@@ -33,10 +32,6 @@ public class StatsController {
             @RequestParam(required = false) List<String> uris,
             @RequestParam(required = false) Boolean unique
     ) {
-//        ToDo в uris не забыть учесть,
-//         что может быть null,
-//         что могут быть повторы
-//         и могут быть пустые строки в списке
         return statsService.getStats(start, end, uris, unique);
     }
 }
