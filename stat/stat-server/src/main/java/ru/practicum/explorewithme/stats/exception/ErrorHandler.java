@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -27,6 +28,18 @@ public class ErrorHandler {
      и для возвращения более полных текстов ошибок
      и более подходящих кодов ответов.
     */
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionResponse handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        String errorMessage = (e.getMessage() != null) ? e.getMessage() : "Некорректный формат тела запроса";
+        ExceptionResponse errorResponse = new ExceptionResponse(
+                "Ошибка чтения JSON",
+                errorMessage
+        );
+        log.error("Ошибка десериализации JSON: {}", errorMessage);
+        return errorResponse;
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
