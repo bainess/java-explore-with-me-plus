@@ -1,7 +1,7 @@
 services:
-  stats-service:
-    build: ./stat/stat-service
-    container_name: stat-service
+  stats-server:
+    build: ./stat/stat-server
+    container_name: stat-server
     ports:
       - "9090:9090"
     depends_on:
@@ -14,7 +14,7 @@ services:
 
   stat-db:
     image: postgres:16.1
-    container_name: stat_db
+    container_name: stat-db
     ports:
       - "5432:5432"
     environment:
