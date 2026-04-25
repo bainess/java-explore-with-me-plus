@@ -1,10 +1,10 @@
-package ru.practicum.stats.client;
+package ru.practicum.explorewithme.stats.client;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import ru.practicum.stats.dto.EndpointHitDTO;
+import ru.practicum.explorewithme.stats.dto.EndpointHitDTO;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

@@ -1,4 +1,4 @@
-package ru.practicum.stats.client;
+package ru.practicum.explorewithme.stats.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
@@ -13,7 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import ru.practicum.stats.dto.EndpointHitDTO;
+import ru.practicum.explorewithme.stats.dto.EndpointHitDTO;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

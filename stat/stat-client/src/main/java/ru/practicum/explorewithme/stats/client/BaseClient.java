@@ -1,4 +1,4 @@
-package ru.practicum.stats.client;
+package ru.practicum.explorewithme.stats.client;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
