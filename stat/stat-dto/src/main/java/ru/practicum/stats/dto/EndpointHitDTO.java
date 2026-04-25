@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public final class EndpointHitDTO {
+    private Long id;
+
     @NotBlank(message = "Идентификатор сервиса не может быть пустым")
     private String app;
 

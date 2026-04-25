@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class StatsClient extends BaseClient {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public StatsClient(@Value("${stats-service.url}") String serverUrl, WebClient.Builder builder) {
         super(builder.baseUrl(serverUrl).build());
