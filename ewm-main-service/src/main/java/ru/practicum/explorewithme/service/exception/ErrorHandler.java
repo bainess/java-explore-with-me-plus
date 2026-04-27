@@ -7,11 +7,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.practicum.explorewithme.service.exception.dto.ApiError;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 @Slf4j
 @RestControllerAdvice(basePackages = "ru.practicum.explorewithme.service")
 public class ErrorHandler {
@@ -62,6 +64,18 @@ public class ErrorHandler {
                 "Некорректный запрос",
                 "Ошибка валидации полей",
                 errors
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleTypeMismatchException(final MethodArgumentTypeMismatchException e) {
+        String message = "Неверный тип параметра '" + e.getName() + "': '" + e.getValue() + "'";
+        log.warn("Ошибка конвертации параметра: {}", message);
+        return new ApiError(
+                HttpStatus.BAD_REQUEST.name(),
+                "Некорректный запрос",
+                message
         );
     }
 
