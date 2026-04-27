@@ -13,7 +13,7 @@ import ru.practicum.explorewithme.service.category.dto.NewCategoryRequest;
 import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.exception.DuplicatedDataException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,7 +39,7 @@ class CategoryServiceImplTest {
     @Test
     void shouldSaveCategory() {
         Mockito.when(categoryRepository.existsByName(Mockito.anyString()))
-                        .thenReturn(false);
+                .thenReturn(false);
 
         Mockito.when(categoryRepository.save(Mockito.any()))
                 .thenReturn(category);
@@ -48,7 +48,7 @@ class CategoryServiceImplTest {
         Assertions.assertEquals(category.getName(), addedCategory.getName());
     }
 
-//    бросает ошибку, когда данные повторяются
+    //    бросает ошибку, когда данные повторяются
     @Test
     void shouldThrowExceptionWhenCategoryDuplicated() {
         Mockito.when(categoryRepository.existsByName(Mockito.anyString()))

@@ -21,5 +21,5 @@ public class CategoryAdminController {
         log.info("Получен запрос на создание категории {}", request.getName());
 
         return categoryService.createCategory(request);
-    };
+    }
 }

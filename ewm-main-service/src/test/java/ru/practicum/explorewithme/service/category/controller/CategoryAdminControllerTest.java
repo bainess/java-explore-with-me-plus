@@ -27,7 +27,7 @@ public class CategoryAdminControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void shouldSaveCategory() throws Exception{
+    void shouldSaveCategory() throws Exception {
         Long categoryId = 1L;
         NewCategoryRequest request = new NewCategoryRequest("new category");
         Category response = new Category(categoryId, request.getName());
@@ -36,8 +36,8 @@ public class CategoryAdminControllerTest {
                 .thenReturn(response);
 
         mockMvc.perform(post("/admin/categories")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
     }
 }
