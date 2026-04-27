@@ -2,6 +2,7 @@ package ru.practicum.explorewithme.service.category.service;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.explorewithme.service.category.dal.CategoryRepository;
@@ -13,11 +14,10 @@ import ru.practicum.explorewithme.service.exception.DuplicatedDataException;
 import java.util.zip.DataFormatException;
 
 @Service
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class CategoryServiceImpl implements CategoryService{
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
     public Category createCategory(NewCategoryRequest request) {
         if (categoryRepository.existsByName(request.getName())) {throw new DuplicatedDataException("Категория " +
