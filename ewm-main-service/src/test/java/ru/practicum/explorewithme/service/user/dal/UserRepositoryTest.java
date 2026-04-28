@@ -1,4 +1,4 @@
-package ru.practicum.explorewithme.service.user.repository;
+package ru.practicum.explorewithme.service.user.dal;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

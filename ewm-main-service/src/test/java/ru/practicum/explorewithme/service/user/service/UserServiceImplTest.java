@@ -16,7 +16,7 @@ import ru.practicum.explorewithme.service.exception.NotFoundException;
 import ru.practicum.explorewithme.service.user.dto.NewUserRequest;
 import ru.practicum.explorewithme.service.user.dto.UserDto;
 import ru.practicum.explorewithme.service.user.model.User;
-import ru.practicum.explorewithme.service.user.repository.UserRepository;
+import ru.practicum.explorewithme.service.user.dal.UserRepository;
 
 import java.util.List;
 

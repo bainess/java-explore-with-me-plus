@@ -13,7 +13,7 @@ import ru.practicum.explorewithme.service.user.dto.NewUserRequest;
 import ru.practicum.explorewithme.service.user.dto.UserDto;
 import ru.practicum.explorewithme.service.user.mapper.UserMapper;
 import ru.practicum.explorewithme.service.user.model.User;
-import ru.practicum.explorewithme.service.user.repository.UserRepository;
+import ru.practicum.explorewithme.service.user.dal.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
