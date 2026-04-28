@@ -13,7 +13,8 @@ import ru.practicum.explorewithme.service.category.service.CategoryService;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @WebMvcTest(CategoryPublicController.class)
@@ -31,13 +32,13 @@ public class CategoryPublicControllerTest {
         CategoryDto cat1 = new CategoryDto(1L, "cat 1");
         CategoryDto cat2 = new CategoryDto(2L, "cat 2");
 
-        Mockito.when(categoryService.getAllCategories(0,10))
+        Mockito.when(categoryService.getAllCategories(0, 10))
                 .thenReturn(List.of(cat1, cat2));
 
         mockMvc.perform(get("/categories")
-                .param("from", "0")
-                .param("to", "10")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .param("from", "0")
+                        .param("to", "10")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.[0].id").value(1))

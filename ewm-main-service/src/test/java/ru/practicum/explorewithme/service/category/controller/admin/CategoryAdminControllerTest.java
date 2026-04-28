@@ -45,7 +45,7 @@ public class CategoryAdminControllerTest {
     }
 
     @Test
-    void  shouldUpdateCategory() throws Exception {
+    void shouldUpdateCategory() throws Exception {
         Long catId = 1L;
         UpdateCategoryRequest request = new UpdateCategoryRequest(catId, "updated category");
         CategoryDto updatedCategory = new CategoryDto(catId, "updated category");
@@ -54,8 +54,8 @@ public class CategoryAdminControllerTest {
                 .thenReturn(updatedCategory);
 
         mockMvc.perform(patch("/admin/categories/{catId}", catId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(catId))
                 .andExpect(jsonPath("$.name").value("updated category"));
