@@ -1,29 +1,55 @@
 package ru.practicum.explorewithme.service.category.service;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.explorewithme.service.category.dal.CategoryRepository;
+import ru.practicum.explorewithme.service.category.dto.CategoryDto;
 import ru.practicum.explorewithme.service.category.dto.NewCategoryRequest;
+import ru.practicum.explorewithme.service.category.dto.UpdateCategoryRequest;
 import ru.practicum.explorewithme.service.category.mapper.CategoryMapper;
 import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.exception.DuplicatedDataException;
+import ru.practicum.explorewithme.service.exception.NotFoundException;
 
-import java.util.zip.DataFormatException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CategoryServiceImpl implements CategoryService{
+public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
-    public Category createCategory(NewCategoryRequest request) {
-        if (categoryRepository.existsByName(request.getName())) {throw new DuplicatedDataException("Категория " +
-                request.getName() + " уже существует");
+    @Override
+    public CategoryDto createCategory(NewCategoryRequest request) {
+        if (categoryRepository.existsByName(request.getName())) {
+            throw new DuplicatedDataException("Категория " +
+                    request.getName() + " уже существует");
         }
         Category category = CategoryMapper.mapToCategory(request);
-        return categoryRepository.save(category);
+        category = categoryRepository.save(category);
+        return CategoryMapper.mapToCategoryDto(category);
+    }
+
+    @Override
+    public CategoryDto changeCategory(Long catId, UpdateCategoryRequest request) {
+        Category category = categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Категория " + catId + " не была найдена"));
+        Category updatedCategory = CategoryMapper.mapToUpdateCategory(request, category);
+        categoryRepository.save(updatedCategory);
+        return CategoryMapper.mapToCategoryDto(updatedCategory);
+    }
+
+    @Override
+    public void removeCategory(Long catId) {
+        Category category = categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Категория " + catId + " не была найдена"));
+        categoryRepository.delete(category);
+    }
+
+    @Override
+    public List<CategoryDto> getAllCategories(Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        return categoryRepository.findAll(pageable).stream().map(CategoryMapper::mapToCategoryDto).toList();
     }
 }

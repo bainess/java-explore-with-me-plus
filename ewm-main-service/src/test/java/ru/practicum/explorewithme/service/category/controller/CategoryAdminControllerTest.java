@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.explorewithme.service.category.controller.admin.CategoryAdminController;
 import ru.practicum.explorewithme.service.category.dto.NewCategoryRequest;
 import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.category.service.CategoryService;

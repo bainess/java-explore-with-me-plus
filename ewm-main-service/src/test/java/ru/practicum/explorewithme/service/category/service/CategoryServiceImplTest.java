@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.explorewithme.service.category.dal.CategoryRepository;
+import ru.practicum.explorewithme.service.category.dto.CategoryDto;
 import ru.practicum.explorewithme.service.category.dto.NewCategoryRequest;
 import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.exception.DuplicatedDataException;
@@ -44,7 +45,7 @@ class CategoryServiceImplTest {
         Mockito.when(categoryRepository.save(Mockito.any()))
                 .thenReturn(category);
 
-        Category addedCategory = categoryService.createCategory(request);
+        CategoryDto addedCategory = categoryService.createCategory(request);
         Assertions.assertEquals(category.getName(), addedCategory.getName());
     }
 
