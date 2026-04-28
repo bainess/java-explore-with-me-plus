@@ -9,8 +9,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.explorewithme.service.category.controller.admin.CategoryAdminController;
+import ru.practicum.explorewithme.service.category.dto.CategoryDto;
 import ru.practicum.explorewithme.service.category.dto.NewCategoryRequest;
-import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.category.service.CategoryService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -28,17 +28,17 @@ public class CategoryAdminControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void shouldSaveCategory() throws Exception{
+    void shouldSaveCategory() throws Exception {
         Long categoryId = 1L;
         NewCategoryRequest request = new NewCategoryRequest("new category");
-        Category response = new Category(categoryId, request.getName());
+        CategoryDto response = new CategoryDto(categoryId, request.getName());
 
         Mockito.when(categoryService.createCategory(Mockito.any()))
                 .thenReturn(response);
 
         mockMvc.perform(post("/admin/categories")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
     }
 }
