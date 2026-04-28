@@ -1,10 +1,17 @@
 package ru.practicum.explorewithme.service.event.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.explorewithme.service.event.dto.*;
+import ru.practicum.explorewithme.service.category.dto.CategoryDto;
+import ru.practicum.explorewithme.service.category.dto.NewCategoryRequest;
+import ru.practicum.explorewithme.service.category.service.CategoryService;
+import ru.practicum.explorewithme.service.event.dto.EventFullDto;
+import ru.practicum.explorewithme.service.event.dto.Location;
+import ru.practicum.explorewithme.service.event.dto.NewEventDto;
+import ru.practicum.explorewithme.service.event.dto.UpdateEventUserRequest;
 import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.enums.UserEventStateAction;
 import ru.practicum.explorewithme.service.user.dto.NewUserRequest;
@@ -12,7 +19,6 @@ import ru.practicum.explorewithme.service.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,14 +30,22 @@ class EventServiceIntegrationTest {
     private EventService eventService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private CategoryService categoryService;
 
     private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    private Long categoryId;
+
+    @BeforeEach
+    void createCategory() {
+        CategoryDto cat = categoryService.createCategory(new NewCategoryRequest("Тестовая категория"));
+        categoryId = cat.getId();
+    }
 
     @Test
     void fullLifecycleTest() {
         var user = userService.registerUser(new NewUserRequest("creator@example.com", "Creator"));
-        // категория должна существовать в БД, допустим, с id=1. Предположим, она создана заранее.
-        Long categoryId = 1L;
 
         NewEventDto newEvent = buildValidDto(categoryId, LocalDateTime.now().plusDays(3));
         EventFullDto created = eventService.addEvent(user.getId(), newEvent);
@@ -52,11 +66,9 @@ class EventServiceIntegrationTest {
     void getEvents_Pagination() {
         var user = userService.registerUser(new NewUserRequest("pagin@example.com", "Pagin"));
         for (int i = 0; i < 5; i++) {
-            try {
-                eventService.addEvent(user.getId(), buildValidDto(1L, LocalDateTime.now().plusDays(2 + i)));
-            } catch (Exception e) { /* ignore if category missing, test assumes category id=1 exists */ }
+            eventService.addEvent(user.getId(), buildValidDto(categoryId, LocalDateTime.now().plusDays(2 + i)));
         }
-        List<EventShortDto> page1 = eventService.getEvents(user.getId(), 0, 2);
+        var page1 = eventService.getEvents(user.getId(), 0, 2);
         assertThat(page1).hasSizeLessThanOrEqualTo(2);
     }
 

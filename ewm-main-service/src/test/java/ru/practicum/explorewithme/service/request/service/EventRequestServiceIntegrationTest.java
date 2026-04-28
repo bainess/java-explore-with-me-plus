@@ -1,10 +1,13 @@
-// EventRequestServiceIntegrationTest.java
 package ru.practicum.explorewithme.service.request.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.explorewithme.service.category.dto.CategoryDto;
+import ru.practicum.explorewithme.service.category.dto.NewCategoryRequest;
+import ru.practicum.explorewithme.service.category.service.CategoryService;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
 import ru.practicum.explorewithme.service.event.dto.Location;
 import ru.practicum.explorewithme.service.event.dto.NewEventDto;
@@ -29,14 +32,21 @@ class EventRequestServiceIntegrationTest {
     private EventService eventService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private CategoryService categoryService;
 
     private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private Long categoryId;
+
+    @BeforeEach
+    void createCategory() {
+        CategoryDto cat = categoryService.createCategory(new NewCategoryRequest("Тестовая категория"));
+        categoryId = cat.getId();
+    }
 
     @Test
-    void shouldChangeRequestStatus() {
+    void shouldGetEmptyRequestsForNewEvent() {
         var initiator = userService.registerUser(new NewUserRequest("init@example.com", "Init"));
-        var requester = userService.registerUser(new NewUserRequest("req@example.com", "Req"));
-        Long categoryId = 1L; // предположим, что категория существует
 
         NewEventDto dto = NewEventDto.builder()
                 .annotation("Valid annotation for testing")
@@ -49,8 +59,7 @@ class EventRequestServiceIntegrationTest {
                 .title("Event for requests")
                 .build();
         EventFullDto event = eventService.addEvent(initiator.getId(), dto);
-        // создание заявки (это другая операция, при необходимости можно вызвать через сервис запросов, но в этом тесте только изменение)
-        // Так как сервис заявок не умеет создавать заявки (это в другой части), пропустим этот интеграционный тест полностью, либо ограничимся получением (возвращает пустой список)
+
         List<ParticipationRequestDto> requests = requestService.getEventRequests(initiator.getId(), event.getId());
         assertThat(requests).isEmpty();
     }
