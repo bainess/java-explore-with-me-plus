@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.service.category.dto.CategoryDto;
 import ru.practicum.explorewithme.service.category.dto.NewCategoryRequest;
 import ru.practicum.explorewithme.service.category.dto.UpdateCategoryRequest;
-import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.category.service.CategoryService;
 
 @Slf4j
