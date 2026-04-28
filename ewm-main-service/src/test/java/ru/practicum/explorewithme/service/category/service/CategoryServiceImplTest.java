@@ -136,7 +136,7 @@ class CategoryServiceImplTest {
 
     //должен возвращать категорию по id
     @Test
-    void ShouldReturnCategoryById() {
+    void shouldReturnCategoryById() {
         when(categoryRepository.findById(category.getId()))
                 .thenReturn(Optional.of(category));
 
