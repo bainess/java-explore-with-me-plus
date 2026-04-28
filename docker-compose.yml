@@ -29,7 +29,7 @@ services:
 
 
 
-  main-service:
+  ewm-service:
     build: ./ewm-main-service
     container_name: main-service
     ports:
