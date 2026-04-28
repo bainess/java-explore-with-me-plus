@@ -23,7 +23,8 @@ import ru.practicum.explorewithme.service.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @Slf4j
@@ -50,7 +51,7 @@ class CategoryServiceImplTest {
     @Test
     void shouldSaveCategory() {
         Mockito.when(categoryRepository.existsByName(Mockito.anyString()))
-                        .thenReturn(false);
+                .thenReturn(false);
 
         Mockito.when(categoryRepository.save(Mockito.any()))
                 .thenReturn(category);
@@ -59,7 +60,7 @@ class CategoryServiceImplTest {
         Assertions.assertEquals(category.getName(), addedCategory.getName());
     }
 
-//    бросает ошибку, когда данные повторяются при создании категории
+    //    бросает ошибку, когда данные повторяются при создании категории
     @Test
     void shouldThrowExceptionWhenCategoryDuplicated() {
         Mockito.when(categoryRepository.existsByName(Mockito.anyString()))
@@ -94,8 +95,11 @@ class CategoryServiceImplTest {
         Mockito.when(categoryRepository.findById(catId))
                 .thenReturn(Optional.empty());
 
-        Assertions.assertThrows(NotFoundException.class, () -> {categoryService.getCategoryById(catId);});
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            categoryService.getCategoryById(catId);
+        });
     }
+
     // должен удалять категорию
     @Test
     void shouldDeleteCategory() {

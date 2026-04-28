@@ -16,7 +16,7 @@ public class ErrorHandler {
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ExceptionResponse handleNotFoundException (final NotFoundException e) {
+    public ExceptionResponse handleNotFoundException(final NotFoundException e) {
         return new ExceptionResponse("Не найдено", e.getMessage());
     }
 }
