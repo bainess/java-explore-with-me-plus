@@ -22,6 +22,10 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
+    public Category createCategory(NewCategoryRequest request) {
+        if (categoryRepository.existsByName(request.getName())) {
+            throw new DuplicatedDataException("Категория " +
+                    request.getName() + " уже существует");
     @Override
     public CategoryDto createCategory(NewCategoryRequest request) {
         if (categoryRepository.existsByName(request.getName())) {
