@@ -52,4 +52,10 @@ public class CategoryServiceImpl implements CategoryService {
         Pageable pageable = PageRequest.of(from / size, size);
         return categoryRepository.findAll(pageable).stream().map(CategoryMapper::mapToCategoryDto).toList();
     }
+
+    @Override
+    public CategoryDto getCategoryById(Long catId) {
+        Category category = categoryRepository.findById(catId).orElseThrow(() -> {throw new NotFoundException("Категория c id " + catId + " не найдена");});
+        return CategoryMapper.mapToCategoryDto(category);
+    }
 }
