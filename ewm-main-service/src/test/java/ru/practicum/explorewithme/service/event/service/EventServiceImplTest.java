@@ -18,6 +18,8 @@ import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.enums.UserEventStateAction;
 import ru.practicum.explorewithme.service.event.mapper.EventMapper;
 import ru.practicum.explorewithme.service.event.model.Event;
+import ru.practicum.explorewithme.service.event.model.Location;
+import ru.practicum.explorewithme.service.exception.BadRequestException;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
 import ru.practicum.explorewithme.service.user.dal.UserRepository;
@@ -48,6 +50,7 @@ class EventServiceImplTest {
     private User user;
     private Category category;
     private NewEventDto newEventDto;
+    private Event event;
 
     @BeforeEach
     void setUp() {
@@ -58,12 +61,23 @@ class EventServiceImplTest {
                 .category(1L)
                 .description("Valid description for testing")
                 .eventDate("2030-12-31 15:10:05")
-                .location(new Location(55.75f, 37.62f))
+                .location(new LocationDto(55.75f, 37.62f))
                 .paid(false)
                 .participantLimit(0)
                 .requestModeration(true)
                 .title("Valid title")
                 .build();
+        event = new Event();
+        event.setCategory(category);               // <-- установить тестовую категорию
+        event.setInitiator(user);                  // <-- и инициатора (для маппера)
+        event.setAnnotation("Valid annotation for testing");
+        event.setDescription("Valid description for testing");
+        event.setEventDate(LocalDateTime.parse("2030-12-31T15:10:05"));
+        event.setLocation(new Location(55.75f, 37.62f));
+        event.setPaid(false);
+        event.setParticipantLimit(0);
+        event.setRequestModeration(true);
+        event.setTitle("Valid title");
     }
 
     @Test
@@ -88,7 +102,7 @@ class EventServiceImplTest {
         newEventDto.setEventDate(LocalDateTime.now().plusHours(1).format(EventMapper.FORMATTER));
 
         assertThatThrownBy(() -> eventService.addEvent(1L, newEventDto))
-                .isInstanceOf(ConflictException.class)
+                .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("Дата события должна быть не ранее чем через 2 часа");
     }
 
@@ -104,7 +118,7 @@ class EventServiceImplTest {
     void getEvents_ShouldApplyPagination() {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
         when(eventRepository.findAllByInitiatorId(1L, pageable))
-                .thenReturn(new PageImpl<>(List.of(new Event())));
+                .thenReturn(new PageImpl<>(List.of(event)));
         List<EventShortDto> result = eventService.getEvents(1L, 0, 10);
         assertThat(result).hasSize(1);
     }
@@ -118,9 +132,10 @@ class EventServiceImplTest {
         assertThat(result.getId()).isEqualTo(event.getId());
     }
 
+
     @Test
     void getEvent_NotFound_ShouldThrowNotFound() {
-        when(eventRepository.findByIdAndInitiatorId(1L, 999L)).thenReturn(Optional.empty());
+        when(eventRepository.findByIdAndInitiatorId(999L, 1L)).thenReturn(Optional.empty());  // eventId=999, userId=1
         assertThatThrownBy(() -> eventService.getEvent(1L, 999L))
                 .isInstanceOf(NotFoundException.class);
     }

@@ -9,7 +9,7 @@ import ru.practicum.explorewithme.service.category.dto.CategoryDto;
 import ru.practicum.explorewithme.service.category.dto.NewCategoryRequest;
 import ru.practicum.explorewithme.service.category.service.CategoryService;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
-import ru.practicum.explorewithme.service.event.dto.Location;
+import ru.practicum.explorewithme.service.event.dto.LocationDto;
 import ru.practicum.explorewithme.service.event.dto.NewEventDto;
 import ru.practicum.explorewithme.service.event.service.EventService;
 import ru.practicum.explorewithme.service.request.dto.ParticipationRequestDto;
@@ -53,7 +53,7 @@ class EventRequestServiceIntegrationTest {
                 .category(categoryId)
                 .description("Valid description for testing")
                 .eventDate(LocalDateTime.now().plusDays(2).format(fmt))
-                .location(new Location(55.75f, 37.62f))
+                .location(new LocationDto(55.75f, 37.62f))
                 .requestModeration(true)
                 .participantLimit(1)
                 .title("Event for requests")
