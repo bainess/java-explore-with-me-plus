@@ -28,6 +28,19 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
 
+    private void validateEventsExist(Set<Event> events, List<Long> eventIds) {
+        if (eventIds != null && !eventIds.isEmpty()) {
+            Set<Long> foundIds = events.stream()
+                    .map(Event::getId)
+                    .collect(Collectors.toSet());
+            for (Long eventId : eventIds) {
+                if (!foundIds.contains(eventId)) {
+                    throw new NotFoundException("Событие с id=" + eventId + " не найдено");
+                }
+            }
+        }
+    }
+
     @Override
     @Transactional
     public CompilationDto create(NewCompilationDto dto) {
@@ -35,6 +48,7 @@ public class CompilationServiceImpl implements CompilationService {
 
         if (dto.getEvents() != null && !dto.getEvents().isEmpty()) {
             Set<Event> events = new HashSet<>(eventRepository.findAllById(dto.getEvents()));
+            validateEventsExist(events, dto.getEvents());
             compilation.setEvents(events);
         }
 
@@ -53,6 +67,7 @@ public class CompilationServiceImpl implements CompilationService {
 
         if (request.getEvents() != null) {
             Set<Event> events = new HashSet<>(eventRepository.findAllById(request.getEvents()));
+            validateEventsExist(events, request.getEvents());
             compilation.setEvents(events);
         }
 
