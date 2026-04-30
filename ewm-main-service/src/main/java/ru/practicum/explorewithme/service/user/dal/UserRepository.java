@@ -1,4 +1,4 @@
-package ru.practicum.explorewithme.service.user.repository;
+package ru.practicum.explorewithme.service.user.dal;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

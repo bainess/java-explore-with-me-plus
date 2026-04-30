@@ -20,7 +20,7 @@ public class EventFullDto {
     String description;
     String eventDate;
     UserShortDto initiator;
-    Location location;
+    LocationDto location;
     Boolean paid;
     Integer participantLimit;
     String publishedOn;

@@ -79,6 +79,17 @@ public class ErrorHandler {
         );
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleBadRequestException(final BadRequestException e) {
+        log.warn("Некорректный запрос: {}", e.getMessage());
+        return new ApiError(
+                HttpStatus.BAD_REQUEST.name(),
+                "Некорректный запрос",
+                e.getMessage()
+        );
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleDataIntegrityViolation(final DataIntegrityViolationException e) {
