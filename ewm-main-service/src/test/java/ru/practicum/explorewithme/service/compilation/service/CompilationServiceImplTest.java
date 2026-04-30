@@ -6,10 +6,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.practicum.explorewithme.service.compilation.dal.CompilationRepository;
 import ru.practicum.explorewithme.service.compilation.dto.CompilationDto;
 import ru.practicum.explorewithme.service.compilation.dto.NewCompilationDto;
-import ru.practicum.explorewithme.service.compilation.dto.UpdateCompilationRequest;
+import ru.practicum.explorewithme.service.compilation.dto.UpdateCompilationRequestDto;
 import ru.practicum.explorewithme.service.compilation.model.Compilation;
 import ru.practicum.explorewithme.service.event.dal.EventRepository;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
@@ -40,12 +41,12 @@ class CompilationServiceImplTest {
     @BeforeEach
     void setUp() {
         compilation = new Compilation();
-        compilation.setId(1L);
+        ReflectionTestUtils.setField(compilation, "id", 1L);
         compilation.setTitle("Test Compilation");
         compilation.setPinned(true);
         compilation.setEvents(new HashSet<>());
 
-        newCompilationDto = new NewCompilationDto("Test Compilation", true, List.of(1L, 2L));
+        newCompilationDto = new NewCompilationDto("Test Compilation", true, List.of());
     }
 
     @Test
@@ -60,7 +61,7 @@ class CompilationServiceImplTest {
 
     @Test
     void update_ShouldReturnUpdatedCompilation() {
-        UpdateCompilationRequest request = new UpdateCompilationRequest("Updated", false, List.of());
+        UpdateCompilationRequestDto request = new UpdateCompilationRequestDto("Updated", false, List.of());
         when(compilationRepository.findById(1L)).thenReturn(Optional.of(compilation));
         when(compilationRepository.save(any(Compilation.class))).thenReturn(compilation);
 
@@ -72,7 +73,7 @@ class CompilationServiceImplTest {
 
     @Test
     void update_WhenNotFound_ShouldThrowNotFound() {
-        UpdateCompilationRequest request = new UpdateCompilationRequest("Updated", false, List.of());
+        UpdateCompilationRequestDto request = new UpdateCompilationRequestDto("Updated", false, List.of());
         when(compilationRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> compilationService.update(999L, request))

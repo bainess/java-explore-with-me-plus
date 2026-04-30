@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.explorewithme.service.compilation.dto.CompilationDto;
 import ru.practicum.explorewithme.service.compilation.dto.NewCompilationDto;
-import ru.practicum.explorewithme.service.compilation.dto.UpdateCompilationRequest;
+import ru.practicum.explorewithme.service.compilation.dto.UpdateCompilationRequestDto;
 import ru.practicum.explorewithme.service.compilation.service.CompilationService;
 
 import java.util.List;
@@ -51,7 +51,7 @@ class CompilationAdminControllerTest {
 
     @Test
     void updateCompilation_ShouldReturn200() throws Exception {
-        UpdateCompilationRequest request = new UpdateCompilationRequest("Updated", true, List.of());
+        UpdateCompilationRequestDto request = new UpdateCompilationRequestDto("Updated", true, List.of());
         CompilationDto response = CompilationDto.builder()
                 .id(1L)
                 .title("Updated")

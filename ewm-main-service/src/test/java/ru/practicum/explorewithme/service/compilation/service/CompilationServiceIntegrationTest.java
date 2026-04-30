@@ -7,15 +7,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.service.compilation.dto.CompilationDto;
 import ru.practicum.explorewithme.service.compilation.dto.NewCompilationDto;
-import ru.practicum.explorewithme.service.compilation.dto.UpdateCompilationRequest;
-import ru.practicum.explorewithme.service.event.model.Event;
-import ru.practicum.explorewithme.service.event.model.EventState;
-import ru.practicum.explorewithme.service.user.model.User;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import ru.practicum.explorewithme.service.compilation.dto.UpdateCompilationRequestDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -39,7 +34,7 @@ class CompilationServiceIntegrationTest {
         NewCompilationDto createDto = new NewCompilationDto("Original", false, null);
         CompilationDto created = compilationService.create(createDto);
 
-        UpdateCompilationRequest updateDto = new UpdateCompilationRequest("Updated", true, null);
+        UpdateCompilationRequestDto updateDto = new UpdateCompilationRequestDto("Updated", true, null);
         CompilationDto result = compilationService.update(created.getId(), updateDto);
 
         assertThat(result.getTitle()).isEqualTo("Updated");
