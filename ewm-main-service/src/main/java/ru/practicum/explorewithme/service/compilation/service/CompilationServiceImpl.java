@@ -30,9 +30,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     private void validateEventsExist(Set<Event> events, List<Long> eventIds) {
         if (eventIds != null && !eventIds.isEmpty()) {
-            Set<Long> foundIds = events.stream()
-                    .map(Event::getId)
-                    .collect(Collectors.toSet());
+            Set<Long> foundIds = events.stream().map(Event::getId).collect(Collectors.toSet());
             for (Long eventId : eventIds) {
                 if (!foundIds.contains(eventId)) {
                     throw new NotFoundException("Событие с id=" + eventId + " не найдено");
@@ -60,8 +58,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto update(Long compId, UpdateCompilationRequestDto request) {
-        Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Подборка с id=" + compId + " не найдена"));
+        Compilation compilation = compilationRepository.findById(compId).orElseThrow(() -> new NotFoundException("Подборка с id=" + compId + " не найдена"));
 
         CompilationMapper.updateEntityFromRequest(request, compilation);
 
@@ -79,16 +76,14 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public void delete(Long compId) {
-        Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Подборка с id=" + compId + " не найдена"));
+        Compilation compilation = compilationRepository.findById(compId).orElseThrow(() -> new NotFoundException("Подборка с id=" + compId + " не найдена"));
         compilationRepository.delete(compilation);
         log.info("Удалена подборка: {}", compId);
     }
 
     @Override
     public CompilationDto getById(Long compId) {
-        Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Подборка с id=" + compId + " не найдена"));
+        Compilation compilation = compilationRepository.findById(compId).orElseThrow(() -> new NotFoundException("Подборка с id=" + compId + " не найдена"));
         return CompilationMapper.toDto(compilation);
     }
 
@@ -103,8 +98,6 @@ public class CompilationServiceImpl implements CompilationService {
             compilations = compilationRepository.findAll(pageable).getContent();
         }
 
-        return compilations.stream()
-                .map(CompilationMapper::toDto)
-                .collect(Collectors.toList());
+        return compilations.stream().map(CompilationMapper::toDto).collect(Collectors.toList());
     }
 }

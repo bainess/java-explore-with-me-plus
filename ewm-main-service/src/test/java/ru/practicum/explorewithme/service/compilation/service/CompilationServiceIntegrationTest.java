@@ -47,8 +47,7 @@ class CompilationServiceIntegrationTest {
 
         compilationService.delete(created.getId());
 
-        assertThatThrownBy(() -> compilationService.getById(created.getId()))
-                .isInstanceOf(Exception.class);
+        assertThatThrownBy(() -> compilationService.getById(created.getId())).isInstanceOf(Exception.class);
     }
 
     @Test

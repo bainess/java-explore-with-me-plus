@@ -33,46 +33,27 @@ class CompilationAdminControllerTest {
     @Test
     void createCompilation_ShouldReturn201() throws Exception {
         NewCompilationDto request = new NewCompilationDto("Test", false, List.of());
-        CompilationDto response = CompilationDto.builder()
-                .id(1L)
-                .title("Test")
-                .pinned(false)
-                .events(List.of())
-                .build();
+        CompilationDto response = CompilationDto.builder().id(1L).title("Test").pinned(false).events(List.of()).build();
 
         Mockito.when(compilationService.create(Mockito.any())).thenReturn(response);
 
-        mockMvc.perform(post("/admin/compilations")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1));
+        mockMvc.perform(post("/admin/compilations").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request))).andExpect(status().isCreated()).andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
     void updateCompilation_ShouldReturn200() throws Exception {
         UpdateCompilationRequestDto request = new UpdateCompilationRequestDto("Updated", true, List.of());
-        CompilationDto response = CompilationDto.builder()
-                .id(1L)
-                .title("Updated")
-                .pinned(true)
-                .events(List.of())
-                .build();
+        CompilationDto response = CompilationDto.builder().id(1L).title("Updated").pinned(true).events(List.of()).build();
 
         Mockito.when(compilationService.update(Mockito.eq(1L), Mockito.any())).thenReturn(response);
 
-        mockMvc.perform(patch("/admin/compilations/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Updated"));
+        mockMvc.perform(patch("/admin/compilations/1").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request))).andExpect(status().isOk()).andExpect(jsonPath("$.title").value("Updated"));
     }
 
     @Test
     void deleteCompilation_ShouldReturn204() throws Exception {
         Mockito.doNothing().when(compilationService).delete(1L);
 
-        mockMvc.perform(delete("/admin/compilations/1"))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/admin/compilations/1")).andExpect(status().isNoContent());
     }
 }

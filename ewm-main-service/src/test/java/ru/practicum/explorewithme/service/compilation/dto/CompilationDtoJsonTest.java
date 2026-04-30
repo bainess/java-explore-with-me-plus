@@ -12,12 +12,7 @@ class CompilationDtoJsonTest {
 
     @Test
     void serialize_ShouldReturnJson() throws Exception {
-        CompilationDto dto = CompilationDto.builder()
-                .id(1L)
-                .title("Test")
-                .pinned(true)
-                .events(List.of())
-                .build();
+        CompilationDto dto = CompilationDto.builder().id(1L).title("Test").pinned(true).events(List.of()).build();
 
         String json = objectMapper.writeValueAsString(dto);
 

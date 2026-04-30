@@ -29,34 +29,19 @@ class CompilationPublicControllerTest {
 
     @Test
     void getCompilations_ShouldReturn200() throws Exception {
-        CompilationDto compilation = CompilationDto.builder()
-                .id(1L)
-                .title("Test")
-                .pinned(true)
-                .events(List.of())
-                .build();
+        CompilationDto compilation = CompilationDto.builder().id(1L).title("Test").pinned(true).events(List.of()).build();
 
-        Mockito.when(compilationService.getAll(Mockito.nullable(Boolean.class), Mockito.eq(0), Mockito.eq(10)))
-                .thenReturn(List.of(compilation));
+        Mockito.when(compilationService.getAll(Mockito.nullable(Boolean.class), Mockito.eq(0), Mockito.eq(10))).thenReturn(List.of(compilation));
 
-        mockMvc.perform(get("/compilations"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1));
+        mockMvc.perform(get("/compilations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].id").value(1));
     }
 
     @Test
     void getCompilation_ShouldReturn200() throws Exception {
-        CompilationDto compilation = CompilationDto.builder()
-                .id(1L)
-                .title("Test")
-                .pinned(true)
-                .events(List.of())
-                .build();
+        CompilationDto compilation = CompilationDto.builder().id(1L).title("Test").pinned(true).events(List.of()).build();
 
         Mockito.when(compilationService.getById(1L)).thenReturn(compilation);
 
-        mockMvc.perform(get("/compilations/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
+        mockMvc.perform(get("/compilations/1")).andExpect(status().isOk()).andExpect(jsonPath("$.id").value(1));
     }
 }

@@ -20,20 +20,12 @@ public final class CompilationMapper {
     }
 
     public static CompilationDto toDto(Compilation compilation) {
-        List<EventShortDto> events = compilation.getEvents().stream()
-                .map(EventMapper::toShortDto)
-                .collect(Collectors.toList());
+        List<EventShortDto> events = compilation.getEvents().stream().map(EventMapper::toShortDto).collect(Collectors.toList());
 
-        return CompilationDto.builder()
-                .id(compilation.getId())
-                .title(compilation.getTitle())
-                .pinned(compilation.getPinned())
-                .events(events)
-                .build();
+        return CompilationDto.builder().id(compilation.getId()).title(compilation.getTitle()).pinned(compilation.getPinned()).events(events).build();
     }
 
-    public static void updateEntityFromRequest(UpdateCompilationRequestDto request,
-                                               Compilation compilation) {
+    public static void updateEntityFromRequest(UpdateCompilationRequestDto request, Compilation compilation) {
         if (request.getTitle() != null) {
             compilation.setTitle(request.getTitle());
         }

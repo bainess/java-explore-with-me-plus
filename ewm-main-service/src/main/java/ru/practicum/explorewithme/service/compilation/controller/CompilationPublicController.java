@@ -21,10 +21,7 @@ public class CompilationPublicController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<CompilationDto> getCompilations(
-            @RequestParam(name = "pinned", required = false) Boolean pinned,
-            @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-            @PositiveOrZero @RequestParam(name = "size", defaultValue = "10") Integer size) {
+    public List<CompilationDto> getCompilations(@RequestParam(name = "pinned", required = false) Boolean pinned, @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from, @PositiveOrZero @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Запрос на получение подборок, pinned={}, from={}, size={}", pinned, from, size);
         return compilationService.getAll(pinned, from, size);
     }

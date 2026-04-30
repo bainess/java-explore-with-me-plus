@@ -76,8 +76,7 @@ class CompilationServiceImplTest {
         UpdateCompilationRequestDto request = new UpdateCompilationRequestDto("Updated", false, List.of());
         when(compilationRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> compilationService.update(999L, request))
-                .isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> compilationService.update(999L, request)).isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -94,8 +93,7 @@ class CompilationServiceImplTest {
     void delete_WhenNotFound_ShouldThrowNotFound() {
         when(compilationRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> compilationService.delete(999L))
-                .isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> compilationService.delete(999L)).isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -111,7 +109,6 @@ class CompilationServiceImplTest {
     void getById_WhenNotFound_ShouldThrowNotFound() {
         when(compilationRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> compilationService.getById(999L))
-                .isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> compilationService.getById(999L)).isInstanceOf(NotFoundException.class);
     }
 }
