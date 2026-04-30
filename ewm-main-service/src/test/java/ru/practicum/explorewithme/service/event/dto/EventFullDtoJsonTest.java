@@ -29,7 +29,7 @@ class EventFullDtoJsonTest {
                 .description("Test description")
                 .eventDate("2024-02-01 12:00:00")
                 .initiator(new UserShortDto(3L, "Иван Иванов"))
-                .location(new Location(55.754167f, 37.62f))
+                .location(new LocationDto(55.754167f, 37.62f))
                 .paid(true)
                 .participantLimit(10)
                 .publishedOn("2024-01-02 10:00:00")

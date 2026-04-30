@@ -1,5 +1,6 @@
 package ru.practicum.explorewithme.service.event.dto;
 
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -20,10 +21,16 @@ public class UpdateEventAdminRequest {
     String description;
 
     String eventDate;
-    Location location;
+
+    LocationDto location;
+
     Boolean paid;
-    Integer participantLimit;
+
+    @PositiveOrZero(message = "Лимит участников не может быть отрицательным")
+    private Integer participantLimit;
+
     Boolean requestModeration;
+
     AdminEventStateAction stateAction;
 
     @Size(min = 3, max = 120, message = "Длина заголовка должна быть от 3 до 120 символов")

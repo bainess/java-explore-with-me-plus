@@ -22,7 +22,7 @@ class NewEventDtoJsonTest {
                 .category(1L)
                 .description("Valid description for testing")
                 .eventDate("2026-05-01 12:00:00")
-                .location(new Location(55.75f, 37.62f))
+                .location(new LocationDto(55.75f, 37.62f))
                 .paid(false)
                 .participantLimit(0)
                 .requestModeration(true)

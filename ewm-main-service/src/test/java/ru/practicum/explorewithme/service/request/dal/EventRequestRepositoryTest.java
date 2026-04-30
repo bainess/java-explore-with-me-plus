@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.model.Event;
 import ru.practicum.explorewithme.service.request.enums.ParticipationRequestStatus;
@@ -19,13 +20,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 class EventRequestRepositoryTest {
 
+    @SuppressWarnings("unused")
     @Autowired
     private TestEntityManager em;
+
+    @SuppressWarnings("unused")
     @Autowired
     private EventRequestRepository requestRepository;
 
-    private User requester;
     private User initiator;
+    private User requester;
     private Event event;
 
     @BeforeEach
@@ -34,6 +38,9 @@ class EventRequestRepositoryTest {
         em.persist(initiator);
         requester = new User(null, "requester@example.com", "Requester");
         em.persist(requester);
+
+        Category category = new Category(null, "Тест");
+        em.persist(category);
 
         event = new Event();
         event.setTitle("Event");
@@ -47,14 +54,19 @@ class EventRequestRepositoryTest {
         event.setState(EventState.PUBLISHED);
         event.setCreatedOn(LocalDateTime.now());
         event.setInitiator(initiator);
+        event.setCategory(category);
         em.persist(event);
     }
 
     @Test
     void countByEventIdAndStatus_ReturnsCorrectCount() {
-        ParticipationRequest req1 = createRequest(ParticipationRequestStatus.CONFIRMED);
-        ParticipationRequest req2 = createRequest(ParticipationRequestStatus.CONFIRMED);
-        createRequest(ParticipationRequestStatus.PENDING);
+        User req1 = createTestUser("req1@example.com", "Req1");
+        User req2 = createTestUser("req2@example.com", "Req2");
+        User req3 = createTestUser("req3@example.com", "Req3");
+
+        createRequest(req1, ParticipationRequestStatus.CONFIRMED);
+        createRequest(req2, ParticipationRequestStatus.CONFIRMED);
+        createRequest(req3, ParticipationRequestStatus.PENDING);
 
         Integer count = requestRepository.countByEventIdAndStatus(event.getId(), ParticipationRequestStatus.CONFIRMED);
         assertThat(count).isEqualTo(2);
@@ -62,18 +74,23 @@ class EventRequestRepositoryTest {
 
     @Test
     void findAllByEventIdAndEventInitiatorId_ReturnsRequests() {
-        createRequest(ParticipationRequestStatus.PENDING);
+        createRequest(requester, ParticipationRequestStatus.PENDING);
         List<ParticipationRequest> result = requestRepository
                 .findAllByEventIdAndEventInitiatorId(event.getId(), initiator.getId());
         assertThat(result).hasSize(1);
     }
 
-    private ParticipationRequest createRequest(ParticipationRequestStatus status) {
+    private void createRequest(User requester, ParticipationRequestStatus status) {
         ParticipationRequest req = new ParticipationRequest();
         req.setCreated(LocalDateTime.now());
         req.setEvent(event);
         req.setRequester(requester);
         req.setStatus(status);
-        return em.persist(req);
+        em.persist(req);
+    }
+
+    private User createTestUser(String email, String name) {
+        User user = new User(null, email, name);
+        return em.persist(user);
     }
 }

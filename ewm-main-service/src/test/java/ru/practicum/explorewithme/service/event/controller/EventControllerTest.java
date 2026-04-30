@@ -53,7 +53,7 @@ class EventControllerTest {
                 .category(1L)
                 .description("Valid description for testing")
                 .eventDate("2030-12-31 15:10:05")
-                .location(new Location(55.75f, 37.62f))
+                .location(new LocationDto(55.75f, 37.62f))
                 .paid(false)
                 .participantLimit(0)
                 .requestModeration(true)

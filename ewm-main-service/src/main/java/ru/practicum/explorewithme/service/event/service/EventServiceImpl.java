@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.service.category.dal.CategoryRepository;
+import ru.practicum.explorewithme.service.event.dal.EventRepository;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
 import ru.practicum.explorewithme.service.event.dto.EventShortDto;
 import ru.practicum.explorewithme.service.event.dto.NewEventDto;
@@ -16,7 +17,7 @@ import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.enums.UserEventStateAction;
 import ru.practicum.explorewithme.service.event.mapper.EventMapper;
 import ru.practicum.explorewithme.service.event.model.Event;
-import ru.practicum.explorewithme.service.event.dal.EventRepository;
+import ru.practicum.explorewithme.service.exception.BadRequestException;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
 import ru.practicum.explorewithme.service.user.dal.UserRepository;
@@ -42,7 +43,7 @@ public class EventServiceImpl implements EventService {
         log.info("Создание события пользователем id={}", userId);
         LocalDateTime eventDate = LocalDateTime.parse(newEventDto.getEventDate(), EventMapper.FORMATTER);
         if (ChronoUnit.HOURS.between(LocalDateTime.now(), eventDate) < 2) {
-            throw new ConflictException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
+            throw new BadRequestException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
         }
 
         Event event = EventMapper.toEntity(newEventDto);
@@ -96,7 +97,7 @@ public class EventServiceImpl implements EventService {
         if (request.getEventDate() != null) {
             LocalDateTime newDate = LocalDateTime.parse(request.getEventDate(), EventMapper.FORMATTER);
             if (ChronoUnit.HOURS.between(LocalDateTime.now(), newDate) < 2) {
-                throw new ConflictException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
+                throw new BadRequestException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
             }
         }
 

@@ -2,6 +2,7 @@ package ru.practicum.explorewithme.service.event.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -27,11 +28,12 @@ public class NewEventDto {
     String eventDate;
 
     @NotNull(message = "Местоположение должно быть указано")
-    Location location;
+    LocationDto location;
 
     @Builder.Default
     Boolean paid = false;
 
+    @PositiveOrZero(message = "Лимит участников не может быть отрицательным")
     @Builder.Default
     Integer participantLimit = 0;
 
