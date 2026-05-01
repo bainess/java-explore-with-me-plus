@@ -1,0 +1,50 @@
+package ru.practicum.explorewithme.service.event.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.explorewithme.service.event.dto.EventSearchParams;
+import ru.practicum.explorewithme.service.event.dto.EventShortDto;
+import ru.practicum.explorewithme.service.event.service.EventService;
+import ru.practicum.explorewithme.service.exception.BadRequestException;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@RestController
+@RequestMapping("/events")
+@RequiredArgsConstructor
+public class PublicEventController {
+    private final EventService eventService;
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<EventShortDto> getEvents(
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false) List<Long> categories,
+            @RequestParam(required = false) Boolean paid,
+            @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")LocalDateTime rangeStart,
+            @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")LocalDateTime rangeEnd,
+            @RequestParam (required = false) Boolean onlyAvailable,
+            @RequestParam(required = false) String sort,
+            @RequestParam (defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "10") Integer size
+    ) {
+        if (rangeEnd != null && rangeStart != null && rangeEnd.isBefore(rangeStart)) {throw new BadRequestException("rangeEnd должен быть позже rangeStart");
+
+        }
+        EventSearchParams params = EventSearchParams.builder()
+                .text(text)
+                .categories(categories)
+                .paid(paid)
+                .rangeStart(rangeEnd)
+                .rangeEnd(rangeEnd)
+                .onlyAvailable(onlyAvailable)
+                .sort(sort)
+                .from(from)
+                .size(size)
+                .build();
+        return eventService.getEvents(params);
+    }
+}
