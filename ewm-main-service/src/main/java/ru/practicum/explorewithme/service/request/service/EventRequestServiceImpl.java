@@ -117,7 +117,14 @@ public class EventRequestServiceImpl implements EventRequestService {
             status = ParticipationRequestStatus.PENDING;
         }
 
-        if (status == ParticipationRequestStatus.CONFIRMED && event.getParticipantLimit() > 0
+        if (status == ParticipationRequestStatus.CONFIRMED 
+                && event.getParticipantLimit() > 0
+                && confirmedCount >= event.getParticipantLimit()) {
+            throw new ConflictException("Лимит участников исчерпан");
+        }
+
+        if (status == ParticipationRequestStatus.PENDING 
+                && event.getParticipantLimit() > 0
                 && confirmedCount >= event.getParticipantLimit()) {
             throw new ConflictException("Лимит участников исчерпан");
         }
