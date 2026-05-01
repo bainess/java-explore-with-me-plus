@@ -63,6 +63,12 @@ public class EventRequestServiceImpl implements EventRequestService {
         if (newStatus == ParticipationRequestStatus.CONFIRMED) {
             processConfirmation(event, pendingRequests, confirmed, rejected);
         } else {
+            // Проверяем, что не пытаемся отклонить уже подтвержденные заявки
+            for (ParticipationRequest r : pendingRequests) {
+                if (r.getStatus() == ParticipationRequestStatus.CONFIRMED) {
+                    throw new ConflictException("Нелзя отменить уже подтвержденную заявку");
+                }
+            }
             rejectAll(pendingRequests, rejected);
         }
 
@@ -189,6 +195,12 @@ public class EventRequestServiceImpl implements EventRequestService {
         int currentConfirmed = eventRequestRepository.countByEventIdAndStatus(
                 event.getId(), ParticipationRequestStatus.CONFIRMED);
         int limit = event.getParticipantLimit();
+
+        // Если лимит уже достигнут, нельзя подтверждать новые заявки
+        if (currentConfirmed >= limit) {
+            throw new ConflictException("Лимит участников уже достигнут, подтверждение заявок невозможно");
+        }
+
         int remaining = limit - currentConfirmed;
 
         for (ParticipationRequest r : requests) {
