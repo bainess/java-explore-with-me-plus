@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ParticipationRequest {
     @Id

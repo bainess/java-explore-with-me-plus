@@ -9,6 +9,8 @@ import ru.practicum.explorewithme.service.event.model.Event;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
 import ru.practicum.explorewithme.service.request.dal.EventRequestRepository;
+import ru.practicum.explorewithme.service.user.dal.UserRepository;
+import ru.practicum.explorewithme.service.user.model.User;
 import ru.practicum.explorewithme.service.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.explorewithme.service.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.explorewithme.service.request.dto.ParticipationRequestDto;
@@ -16,6 +18,7 @@ import ru.practicum.explorewithme.service.request.enums.ParticipationRequestStat
 import ru.practicum.explorewithme.service.request.mapper.ParticipationRequestMapper;
 import ru.practicum.explorewithme.service.request.model.ParticipationRequest;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +31,7 @@ public class EventRequestServiceImpl implements EventRequestService {
 
     private final EventRepository eventRepository;
     private final EventRequestRepository eventRequestRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
@@ -65,6 +69,85 @@ public class EventRequestServiceImpl implements EventRequestService {
         eventRequestRepository.saveAll(pendingRequests);
 
         return buildResult(confirmed, rejected);
+    }
+
+    @Override
+    public List<ParticipationRequestDto> getUserRequests(Long userId) {
+        log.info("Получение заявок пользователя id={}", userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
+        List<ParticipationRequest> requests = eventRequestRepository.findAllByRequesterId(userId);
+        return requests.stream()
+                .map(ParticipationRequestMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public ParticipationRequestDto addParticipationRequest(Long userId, Long eventId) {
+        log.info("Добавление заявки на событие id={} пользователем id={}", eventId, userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+
+        if (event.getState() != ru.practicum.explorewithme.service.event.enums.EventState.PUBLISHED) {
+            throw new ConflictException("Нельзя подать заявку на неопубликованное событие");
+        }
+
+        if (event.getInitiator().getId().equals(userId)) {
+            throw new ConflictException("Инициатор события не может подать заявку на свое событие");
+        }
+
+        if (eventRequestRepository.existsByEventIdAndRequesterId(eventId, userId)) {
+            throw new ConflictException("Заявка на это событие уже подана");
+        }
+
+        int confirmedCount = eventRequestRepository.countByEventIdAndStatus(
+                eventId, ParticipationRequestStatus.CONFIRMED);
+
+        ParticipationRequestStatus status;
+        if (event.getParticipantLimit() == 0) {
+            status = ParticipationRequestStatus.CONFIRMED;
+        } else if (!event.getRequestModeration()) {
+            status = ParticipationRequestStatus.CONFIRMED;
+        } else {
+            status = ParticipationRequestStatus.PENDING;
+        }
+
+        if (status == ParticipationRequestStatus.CONFIRMED && event.getParticipantLimit() > 0
+                && confirmedCount >= event.getParticipantLimit()) {
+            throw new ConflictException("Лимит участников исчерпан");
+        }
+
+        ParticipationRequest request = ParticipationRequest.builder()
+                .created(LocalDateTime.now())
+                .event(event)
+                .requester(user)
+                .status(status)
+                .build();
+
+        request = eventRequestRepository.save(request);
+        return ParticipationRequestMapper.toDto(request);
+    }
+
+    @Override
+    @Transactional
+    public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
+        log.info("Отмена заявки id={} пользователем id={}", requestId, userId);
+
+        ParticipationRequest request = eventRequestRepository.findByIdAndRequesterId(requestId, userId)
+                .orElseThrow(() -> new NotFoundException("Заявка с id=" + requestId + " не найдена"));
+
+        if (request.getStatus() != ParticipationRequestStatus.PENDING) {
+            throw new ConflictException("Можно отменить только заявку в статусе PENDING");
+        }
+
+        request.setStatus(ParticipationRequestStatus.CANCELED);
+        request = eventRequestRepository.save(request);
+        return ParticipationRequestMapper.toDto(request);
     }
 
     private Event getEventAndValidateOwnership(Long userId, Long eventId) {
@@ -114,24 +197,16 @@ public class EventRequestServiceImpl implements EventRequestService {
 
         // Автоматически отклонить все оставшиеся PENDING заявки, если лимит исчерпан
         if (remaining == 0) {
-            rejectRemainingPending(requests, rejected);
+            rejectRemainingPending(event, rejected);
         }
     }
 
-    private void rejectRemainingPending(List<ParticipationRequest> processedRequests,
-                                        List<ParticipationRequest> rejectedContainer) {
-        // Получить заявки, которые всё ещё в статусе PENDING из исходного списка
-        List<Long> pendingIds = processedRequests.stream()
-                .filter(r -> r.getStatus() == ParticipationRequestStatus.PENDING)
-                .map(ParticipationRequest::getId)
-                .collect(Collectors.toList());
-        if (!pendingIds.isEmpty()) {
-            List<ParticipationRequest> stillPending = eventRequestRepository.findAllByIdInAndStatus(
-                    pendingIds, ParticipationRequestStatus.PENDING);
-            for (ParticipationRequest r : stillPending) {
-                r.setStatus(ParticipationRequestStatus.REJECTED);
-                rejectedContainer.add(r);
-            }
+    private void rejectRemainingPending(Event event, List<ParticipationRequest> rejectedContainer) {
+        List<ParticipationRequest> allPending = eventRequestRepository.findAllByEventIdAndStatus(
+                event.getId(), ParticipationRequestStatus.PENDING);
+        for (ParticipationRequest r : allPending) {
+            r.setStatus(ParticipationRequestStatus.REJECTED);
+            rejectedContainer.add(r);
         }
     }
 
