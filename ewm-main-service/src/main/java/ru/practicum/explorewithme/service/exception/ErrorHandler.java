@@ -1,5 +1,7 @@
 package ru.practicum.explorewithme.service.exception;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.service.annotation.HttpExchange;
 import ru.practicum.explorewithme.service.exception.dto.ApiError;
 
 import java.util.List;
@@ -91,7 +94,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleDataIntegrityViolation(final DataIntegrityViolationException e) {
         log.warn("Нарушение целостности данных: {}", e.getMostSpecificCause().getMessage());
         return new ApiError(
@@ -109,6 +112,25 @@ public class ErrorHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.name(),
                 "Внутренняя ошибка сервера",
                 e.getMessage() != null ? e.getMessage() : "Неизвестная ошибка"
+        );
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleConstraintViolation(final ConstraintViolationException e) {
+
+        List<String> errors = e.getConstraintViolations().stream()
+                .map(v -> "Поле: " + v.getPropertyPath()
+                        + ". Ошибка: " + v.getMessage())
+                .collect(Collectors.toList());
+
+        log.warn("Ошибка валидации (Hibernate): {}", errors);
+
+        return new ApiError(
+                HttpStatus.BAD_REQUEST.name(),
+                "Некорректный запрос",
+                "Ошибка валидации Entity",
+                errors
         );
     }
 }

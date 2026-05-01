@@ -1,5 +1,6 @@
 package ru.practicum.explorewithme.service.category.controller.admin;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class CategoryAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryDto createCategory(@RequestBody NewCategoryRequest request) {
+    public CategoryDto createCategory(@RequestBody @Valid NewCategoryRequest request) {
         log.info("Получен запрос на создание категории {}", request.getName());
 
         return categoryService.createCategory(request);
