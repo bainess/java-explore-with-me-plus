@@ -20,11 +20,15 @@ import ru.practicum.explorewithme.service.event.service.predicate.EventPredicate
 import ru.practicum.explorewithme.service.exception.BadRequestException;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
+import ru.practicum.explorewithme.service.request.dal.EventRequestRepository;
+import ru.practicum.explorewithme.service.request.enums.ParticipationRequestStatus;
 import ru.practicum.explorewithme.service.user.dal.UserRepository;
+import ru.practicum.explorewithme.stats.client.StatsClient;
+import ru.practicum.explorewithme.stats.dto.ViewStatsDTO;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +40,8 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final EventRequestRepository requestRepository;
+    private final StatsClient statsClient;
 
     @Override
     @Transactional
@@ -115,7 +121,25 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != EventState.PUBLISHED) {
             throw new NotFoundException("Событие с id=" + eventId + " не найдено или недоступно");
         }
-        return EventMapper.toFullDto(event);
+
+        Long views = 0L;
+        try {
+            List<ViewStatsDTO> stats = statsClient.getStats(
+                    LocalDateTime.of(2000, 1, 1, 0, 0),
+                    LocalDateTime.now().plusDays(1),
+                    List.of("/events/" + eventId),
+                    false);
+            if (stats != null && !stats.isEmpty()) {
+                views = stats.get(0).getHits();
+            }
+        } catch (Exception e) {
+            log.warn("Не удалось получить статистику для события {}: {}", eventId, e.getMessage());
+        }
+
+        Long confirmedRequests = requestRepository.countByEventIdAndStatus(
+                eventId, ParticipationRequestStatus.CONFIRMED);
+
+        return EventMapper.toFullDto(event, views, confirmedRequests);
     }
 
     @Override
@@ -126,10 +150,40 @@ public class EventServiceImpl implements EventService {
 
         Page<Event> page = eventRepository.findAll(predicate, pageable);
 
-        List<EventShortDto> list = page.stream()
-                .map(EventMapper::toShortDto)
+        List<Event> events = page.getContent();
+
+        List<String> uris = events.stream()
+                .map(event -> "/events/" + event.getId())
                 .toList();
-        log.info("Список событий после фильтрации {}",list);
+
+        Map<Long, Long> viewsMap = new HashMap<>();
+        try {
+            List<ViewStatsDTO> stats = statsClient.getStats(
+                    LocalDateTime.of(2000, 1, 1, 0, 0),
+                    LocalDateTime.now().plusDays(1),
+                    uris,
+                    false);
+            if (stats != null) {
+                for (ViewStatsDTO stat : stats) {
+                    String uri = stat.getUri();
+                    Long eventId = Long.parseLong(uri.substring(uri.lastIndexOf('/') + 1));
+                    viewsMap.put(eventId, stat.getHits());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Не удалось получить статистику для событий: {}", e.getMessage());
+        }
+
+        List<EventShortDto> list = events.stream()
+                .map(event -> {
+                    Long views = viewsMap.getOrDefault(event.getId(), 0L);
+                    Long confirmedRequests = requestRepository.countByEventIdAndStatus(
+                            event.getId(), ParticipationRequestStatus.CONFIRMED);
+                    return EventMapper.toShortDto(event, views, confirmedRequests);
+                })
+                .toList();
+
+        log.info("Список событий после фильтрации {}", list);
         return list;
     }
 
