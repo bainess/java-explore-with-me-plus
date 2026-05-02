@@ -20,8 +20,11 @@ import ru.practicum.explorewithme.service.event.model.Event;
 import ru.practicum.explorewithme.service.event.model.Location;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.user.model.User;
+import ru.practicum.explorewithme.service.request.dal.EventRequestRepository;
+import ru.practicum.explorewithme.service.request.enums.ParticipationRequestStatus;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +40,8 @@ class EventServiceImplAdminTest {
     private EventRepository eventRepository;
     @Mock
     private CategoryRepository categoryRepository;
+    @Mock
+    private EventRequestRepository requestRepository;
 
     @InjectMocks
     private EventServiceImpl eventService;
@@ -69,6 +74,7 @@ class EventServiceImplAdminTest {
     void getEventsByAdmin_Success() {
         when(eventRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(event)));
+        when(requestRepository.countConfirmedRequestsByEventIds(anyList())).thenReturn(Collections.emptyList());
 
         List<EventFullDto> result = eventService.getEventsByAdmin(null, null, null, null, null, 0, 10);
 
@@ -80,6 +86,7 @@ class EventServiceImplAdminTest {
     void updateEventByAdmin_Publish_Success() {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
         when(eventRepository.save(any())).thenReturn(event);
+        when(requestRepository.countByEventIdAndStatus(anyLong(), any(ParticipationRequestStatus.class))).thenReturn(0);
 
         UpdateEventAdminRequest request = UpdateEventAdminRequest.builder()
                 .stateAction(AdminEventStateAction.PUBLISH_EVENT)
@@ -122,6 +129,7 @@ class EventServiceImplAdminTest {
     void updateEventByAdmin_Reject_Success() {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
         when(eventRepository.save(any())).thenReturn(event);
+        when(requestRepository.countByEventIdAndStatus(anyLong(), any(ParticipationRequestStatus.class))).thenReturn(0);
 
         UpdateEventAdminRequest request = UpdateEventAdminRequest.builder()
                 .stateAction(AdminEventStateAction.REJECT_EVENT)

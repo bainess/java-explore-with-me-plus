@@ -24,8 +24,11 @@ import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
 import ru.practicum.explorewithme.service.user.dal.UserRepository;
 import ru.practicum.explorewithme.service.user.model.User;
+import ru.practicum.explorewithme.service.request.dal.EventRequestRepository;
+import ru.practicum.explorewithme.service.request.enums.ParticipationRequestStatus;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +46,8 @@ class EventServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private CategoryRepository categoryRepository;
+    @Mock
+    private EventRequestRepository requestRepository;
 
     @InjectMocks
     private EventServiceImpl eventService;
@@ -119,6 +124,8 @@ class EventServiceImplTest {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
         when(eventRepository.findAllByInitiatorId(1L, pageable))
                 .thenReturn(new PageImpl<>(List.of(event)));
+        when(requestRepository.countConfirmedRequestsByEventIds(anyList())).thenReturn(Collections.emptyList());
+
         List<EventShortDto> result = eventService.getEvents(1L, 0, 10);
         assertThat(result).hasSize(1);
     }
@@ -127,6 +134,7 @@ class EventServiceImplTest {
     void getEvent_ShouldReturnFullDto() {
         Event event = createEventWithDefaults();
         when(eventRepository.findByIdAndInitiatorId(1L, 1L)).thenReturn(Optional.of(event));
+        when(requestRepository.countByEventIdAndStatus(anyLong(), any(ParticipationRequestStatus.class))).thenReturn(0);
 
         EventFullDto result = eventService.getEvent(1L, 1L);
         assertThat(result.getId()).isEqualTo(event.getId());
@@ -150,6 +158,7 @@ class EventServiceImplTest {
                 .stateAction(UserEventStateAction.CANCEL_REVIEW)
                 .build();
         when(eventRepository.save(any())).thenReturn(event);
+        when(requestRepository.countByEventIdAndStatus(anyLong(), any(ParticipationRequestStatus.class))).thenReturn(0);
 
         EventFullDto result = eventService.updateEvent(1L, 1L, request);
         assertThat(result.getState()).isEqualTo(EventState.CANCELED);

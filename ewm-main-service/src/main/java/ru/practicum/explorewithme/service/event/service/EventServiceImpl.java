@@ -117,7 +117,8 @@ public class EventServiceImpl implements EventService {
         EventMapper.updateEntityFromRequest(request, event);
         eventRepository.save(event);
         log.debug("Событие обновлено");
-        return EventMapper.toFullDto(event);
+        Long confirmed = requestRepository.countByEventIdAndStatus(eventId, ParticipationRequestStatus.CONFIRMED).longValue();
+        return EventMapper.toFullDto(event, confirmed, 0L);
     }
 
     @Override
