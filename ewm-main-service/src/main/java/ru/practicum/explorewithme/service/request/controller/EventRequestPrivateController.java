@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users/{userId}/events/{eventId}/requests")
 @RequiredArgsConstructor
-public class EventRequestController {
+public class EventRequestPrivateController {
 
     private final EventRequestService eventRequestService;
 
