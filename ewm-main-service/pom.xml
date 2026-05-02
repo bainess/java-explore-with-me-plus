@@ -70,12 +70,33 @@
             <artifactId>spring-boot-starter-json</artifactId>
         </dependency>
 
-<!--    QueryDsl    -->
+        <!--    QueryDsl    -->
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
             <classifier>jakarta</classifier>
             <version>5.1.0</version>
+        </dependency>
+
+        <!--   Stat-client     -->
+        <dependency>
+            <groupId>ru.practicum</groupId>
+            <artifactId>stat-client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+<!--   Stat-dto     <-->
+
+        <dependency>
+            <groupId>ru.practicum</groupId>
+            <artifactId>stat-dto</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <!-- WebFlux (нужен для WebClient в клиенте) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
     </dependencies>
@@ -87,7 +108,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-<!--     Query compiler plugin       -->
+            <!--     Query compiler plugin       -->
             <plugin>
                 <groupId>com.mysema.maven</groupId>
                 <artifactId>apt-maven-plugin</artifactId>

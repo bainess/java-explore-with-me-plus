@@ -118,9 +118,18 @@ public class EventServiceImpl implements EventService {
         List<EventShortDto> list = page.stream()
                 .map(EventMapper::toShortDto)
                 .toList();
-        log.info("Список событий после фильтрации {}",list);
+        log.info("Список событий после фильтрации {}", list);
         return list;
     }
+
+    @Override
+    public EventFullDto getEvent(Long eventId) {
+        return eventRepository.findById(eventId)
+                .map(EventMapper::toFullDto)
+                .orElseThrow(() -> new NotFoundException("Событие " + eventId + " не найдено"));
+
+    }
+
 
     private Sort getSort(String sort) {
         if ("VIEWS".equalsIgnoreCase(sort)) {
