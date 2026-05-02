@@ -62,7 +62,7 @@ class EventServiceAdminIntegrationTest {
     @Test
     void getEventsByAdmin_FilterByStates() {
         eventService.addEvent(user1.getId(), buildDto("Event 1", LocalDateTime.now().plusDays(1)));
-        
+
         List<EventFullDto> result = eventService.getEventsByAdmin(
                 null, List.of(EventState.PENDING), null, null, null, 0, 10);
 

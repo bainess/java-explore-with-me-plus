@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
 import ru.practicum.explorewithme.service.event.dto.UpdateEventAdminRequest;
 import ru.practicum.explorewithme.service.event.enums.EventState;
-import ru.practicum.explorewithme.service.event.mapper.EventMapper;
 import ru.practicum.explorewithme.service.event.service.EventService;
 
 import java.time.LocalDateTime;

@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
-import ru.practicum.explorewithme.service.event.dto.LocationDto;
 import ru.practicum.explorewithme.service.event.dto.UpdateEventAdminRequest;
 import ru.practicum.explorewithme.service.event.enums.AdminEventStateAction;
 import ru.practicum.explorewithme.service.event.enums.EventState;
@@ -18,11 +17,9 @@ import ru.practicum.explorewithme.service.event.service.EventService;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.ErrorHandler;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
