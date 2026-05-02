@@ -108,6 +108,17 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public EventFullDto getPublishedEvent(Long eventId) {
+        log.info("Получение опубликованного события id={}", eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+        if (event.getState() != EventState.PUBLISHED) {
+            throw new NotFoundException("Событие с id=" + eventId + " не найдено или недоступно");
+        }
+        return EventMapper.toFullDto(event);
+    }
+
+    @Override
     public List<EventShortDto> getEvents(EventSearchParams params) {
         BooleanExpression predicate = EventPredicate.build(params);
 
