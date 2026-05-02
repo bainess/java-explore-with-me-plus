@@ -56,7 +56,7 @@ public class PublicEventController {
                 .text(text)
                 .categories(categories)
                 .paid(paid)
-                .rangeStart(rangeEnd)
+                .rangeStart(rangeStart)
                 .rangeEnd(rangeEnd)
                 .onlyAvailable(onlyAvailable)
                 .sort(sort)
