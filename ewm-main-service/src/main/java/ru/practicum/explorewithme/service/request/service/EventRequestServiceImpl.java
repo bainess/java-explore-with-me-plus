@@ -96,10 +96,10 @@ public class EventRequestServiceImpl implements EventRequestService {
 
     private void processConfirmation(Event event, List<ParticipationRequest> requests,
                                      List<ParticipationRequest> confirmed, List<ParticipationRequest> rejected) {
-        int currentConfirmed = eventRequestRepository.countByEventIdAndStatus(
+        Long currentConfirmed = eventRequestRepository.countByEventIdAndStatus(
                 event.getId(), ParticipationRequestStatus.CONFIRMED);
         int limit = event.getParticipantLimit();
-        int remaining = limit - currentConfirmed;
+        long remaining = limit - currentConfirmed;
 
         for (ParticipationRequest r : requests) {
             if (remaining > 0) {

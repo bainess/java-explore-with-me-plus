@@ -71,7 +71,7 @@ class EventRequestServiceImplTest {
 
         when(eventRequestRepository.findAllByIdInAndStatus(List.of(10L), ParticipationRequestStatus.PENDING))
                 .thenReturn(List.of(req));
-        when(eventRequestRepository.countByEventIdAndStatus(1L, ParticipationRequestStatus.CONFIRMED)).thenReturn(0);
+        when(eventRequestRepository.countByEventIdAndStatus(1L, ParticipationRequestStatus.CONFIRMED)).thenReturn(0L);
         when(eventRequestRepository.saveAll(anyList())).thenReturn(List.of());
 
         EventRequestStatusUpdateRequest updateReq = EventRequestStatusUpdateRequest.builder()
