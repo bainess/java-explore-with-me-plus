@@ -28,11 +28,15 @@ public final class EventMapper {
     }
 
     public static EventFullDto toFullDto(Event event) {
+        return toFullDto(event, 0L, 0L);
+    }
+
+    public static EventFullDto toFullDto(Event event, Long views, Long confirmedRequests) {
         return EventFullDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(new CategoryDto(event.getCategory().getId(), event.getCategory().getName()))
-                .confirmedRequests(0L)
+                .confirmedRequests(confirmedRequests != null ? confirmedRequests : 0L)
                 .createdOn(event.getCreatedOn().format(FORMATTER))
                 .description(event.getDescription())
                 .eventDate(event.getEventDate().format(FORMATTER))
@@ -44,21 +48,25 @@ public final class EventMapper {
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState())
                 .title(event.getTitle())
-                .views(0L)
+                .views(views != null ? views : 0L)
                 .build();
     }
 
     public static EventShortDto toShortDto(Event event) {
+        return toShortDto(event, 0L, 0L);
+    }
+
+    public static EventShortDto toShortDto(Event event, Long views, Long confirmedRequests) {
         return EventShortDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(new CategoryDto(event.getCategory().getId(), event.getCategory().getName()))
-                .confirmedRequests(0L)
+                .confirmedRequests(confirmedRequests != null ? confirmedRequests : 0L)
                 .eventDate(event.getEventDate().format(FORMATTER))
                 .initiator(new UserShortDto(event.getInitiator().getId(), event.getInitiator().getName()))
                 .paid(event.getPaid())
                 .title(event.getTitle())
-                .views(0L)
+                .views(views != null ? views : 0L)
                 .build();
     }
 
