@@ -18,10 +18,11 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(PublicEventControllerTest.class)
-public class PublicEventControllerTest {
+@WebMvcTest(EventPublicController.class)
+public class EventPublicControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
@@ -70,26 +71,20 @@ public class PublicEventControllerTest {
 
         Long eventId = 1L;
 
-        EventFullDto event = new EventFullDto();
-        event.setId(eventId);
-        event.setCreatedOn("2025-01-01 10:00:00");
+        EventFullDto event = EventFullDto.builder()
+                .id(eventId)
+                .createdOn("2025-01-01 10:00:00")
+                .views(5L)
+                .build();
 
         when(eventService.getEventPublic(eventId)).thenReturn(event);
 
-        List<ViewStatsDTO> statsList = List.of(
-                new ViewStatsDTO("ewm-main-service", "/events/1", 5L)
-        );
-
-        ResponseEntity<List<ViewStatsDTO>> response =
-                ResponseEntity.ok(statsList);
-
-        when(statsClient.getStats(any(), any(), any(), any()))
-                .thenReturn(response);
-
         mockMvc.perform(get("/events/{id}", eventId))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(eventId))
+                .andExpect(jsonPath("$.views").value(5));
 
         verify(statsClient, times(1)).saveHit(any());
-        verify(statsClient, times(1)).getStats(any(), any(), any(), any());
+        verify(statsClient, never()).getStats(any(), any(), any(), any());
     }
 }

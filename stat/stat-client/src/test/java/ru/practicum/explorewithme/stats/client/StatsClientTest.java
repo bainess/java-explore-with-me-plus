@@ -85,8 +85,9 @@ class StatsClientTest {
                 .setResponseCode(500)
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
 
-        // BaseClient.post() не обрабатывает ошибки, поэтому будет исключение
-        assertThrows(WebClientResponseException.class, () -> statsClient.saveHit(hit));
+        ResponseEntity<Object> response = statsClient.saveHit(hit);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     // ----------------- getStats -----------------
@@ -166,12 +167,11 @@ class StatsClientTest {
     }
 
     @Test
-    void saveHit_WhenConnectionRefused_ShouldThrowException() {
-        try {
-            mockWebServer.shutdown();
-        } catch (IOException ignored) {
-        }
+    void saveHit_WhenConnectionRefused_ShouldThrowException() throws IOException {
         EndpointHitDTO hit = new EndpointHitDTO(null, "app", "/uri", "1.1.1.1", LocalDateTime.now());
-        assertThrows(Exception.class, () -> statsClient.saveHit(hit));
+            mockWebServer.shutdown();
+
+        ResponseEntity<Object> response = statsClient.saveHit(hit);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
     }
 }

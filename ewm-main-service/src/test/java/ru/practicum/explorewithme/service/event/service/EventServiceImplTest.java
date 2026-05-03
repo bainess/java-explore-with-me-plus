@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
+import org.springframework.http.ResponseEntity;
 import ru.practicum.explorewithme.service.category.dal.CategoryRepository;
 import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.event.dal.EventRepository;
@@ -25,6 +26,7 @@ import ru.practicum.explorewithme.service.user.dal.UserRepository;
 import ru.practicum.explorewithme.service.user.model.User;
 import ru.practicum.explorewithme.service.request.dal.EventRequestRepository;
 import ru.practicum.explorewithme.service.request.enums.ParticipationRequestStatus;
+import ru.practicum.explorewithme.stats.client.StatsClient;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -33,8 +35,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -49,6 +50,8 @@ class EventServiceImplTest {
     private CategoryRepository categoryRepository;
     @Mock
     private EventRequestRepository requestRepository;
+    @Mock
+    private StatsClient statsClient;
 
     @InjectMocks
     private EventServiceImpl eventService;
@@ -203,31 +206,71 @@ class EventServiceImplTest {
                 .sort("VIEWS")
                 .build();
 
-        Page<Event> page = new PageImpl<>(List.of(new Event()));
+        Category category = new Category();
+        category.setId(1L);
+        category.setName("Тестовая категория");
 
-        when(eventRepository.findAll(ArgumentMatchers.<BooleanExpression>any(), any(Pageable.class)))
-                .thenReturn(page);
+        User initiator = new User();
+        initiator.setId(10L);
+        initiator.setName("Организатор");
+
+        Event event = new Event();
+        event.setId(1L);
+        event.setAnnotation("Краткое описание события");
+        event.setTitle("Заголовок");
+        event.setCategory(category);
+        event.setInitiator(initiator);
+        event.setEventDate(LocalDateTime.now().plusDays(1));
+        event.setPaid(true);
+        event.setState(EventState.PUBLISHED);
+
+        Page<Event> page = new PageImpl<>(List.of(event));
+
+        when(eventRepository.findAll(any(BooleanExpression.class), any(Pageable.class))).thenReturn(page);
 
         List<EventShortDto> result = eventService.getEventsPublic(params);
 
         assertFalse(result.isEmpty());
-        verify(eventRepository, times(1))
-                .findAll(any(BooleanExpression.class), any(Pageable.class));
+        assertEquals(event.getTitle(), result.get(0).getTitle());
     }
 
     @Test
     void shouldReturnEventById() {
 
+        Category category = new Category();
+        category.setId(1L);
+        category.setName("Category Name");
+
+        User initiator = new User();
+        initiator.setId(1L);
+        initiator.setName("Initiator Name");
+
+        Location location = new Location();
+        location.setLat(55.75f);
+        location.setLon(37.62f);
+
         Event event = new Event();
         event.setId(1L);
         event.setState(EventState.PUBLISHED);
+        event.setCategory(category);
+        event.setInitiator(initiator);
+        event.setCreatedOn(LocalDateTime.now());
+        event.setLocation(location);
+        event.setEventDate(LocalDateTime.now().plusDays(1));
 
         when(eventRepository.findById(1L))
                 .thenReturn(Optional.of(event));
 
+        when(statsClient.getStats(any(), any(), any(), any()))
+                .thenReturn(ResponseEntity.ok(List.of()));
+
+        when(requestRepository.countByEventIdAndStatus(anyLong(), any()))
+                .thenReturn(0);
+
         EventFullDto dto = eventService.getEventPublic(1L);
 
         assertNotNull(dto);
+        assertEquals(1L, dto.getId());
         verify(eventRepository).findById(1L);
     }
 }

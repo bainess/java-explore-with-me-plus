@@ -29,6 +29,7 @@ public class StatsClient extends BaseClient {
             return post("/hit", hitDto);
         } catch (Exception e) {
             log.warn("Не удалось сохранить хит в статистику. Ошибка: {}. Тело: {}", e.getMessage(), hitDto);
+            log.error("DEBUG: Поймали исключение: ", e);
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
     }

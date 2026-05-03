@@ -59,7 +59,7 @@ public class EventPredicate {
         }
 
         if (params.getRangeEnd() != null) {
-            predicate = predicate.and(event.eventDate.goe(params.getRangeEnd()));
+            predicate = predicate.and(event.eventDate.loe(params.getRangeEnd()));
         }
 
         return predicate;
