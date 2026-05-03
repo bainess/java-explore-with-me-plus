@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import ru.practicum.explorewithme.stats.dto.EndpointHitDTO;
+import ru.practicum.explorewithme.stats.dto.ViewStatsDTO;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -102,7 +103,7 @@ class StatsClientTest {
                 .setBody(responseBody)
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
 
-        ResponseEntity<Object> response = statsClient.getStats(start, end, uris, unique);
+        ResponseEntity<List<ViewStatsDTO>> response = statsClient.getStats(start, end, uris, unique);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();

@@ -1,7 +1,9 @@
 package ru.practicum.explorewithme.service.event.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -9,13 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.service.category.dal.CategoryRepository;
 import ru.practicum.explorewithme.service.event.dal.EventRepository;
-import org.springframework.data.jpa.domain.Specification;
 import ru.practicum.explorewithme.service.event.dto.*;
-import ru.practicum.explorewithme.service.event.enums.AdminEventStateAction;
 import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.enums.UserEventStateAction;
 import ru.practicum.explorewithme.service.event.mapper.EventMapper;
 import ru.practicum.explorewithme.service.event.model.Event;
+import ru.practicum.explorewithme.service.event.service.predicate.EventPredicate;
 import ru.practicum.explorewithme.service.exception.BadRequestException;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
@@ -291,5 +292,36 @@ public class EventServiceImpl implements EventService {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
         return requestRepository.countConfirmedRequestsByEventIds(eventIds).stream()
                 .collect(Collectors.toMap(ConfirmedRequestsCount::getEventId, ConfirmedRequestsCount::getCount));
+    }
+
+    @Override
+    public List<EventShortDto> getEvents(EventSearchParams params) {
+        BooleanExpression predicate = EventPredicate.build(params);
+
+        Pageable pageable = PageRequest.of(params.getFrom() / params.getSize(), params.getSize(), getSort(params.getSort()));
+
+        Page<Event> page = eventRepository.findAll(predicate, pageable);
+
+        List<EventShortDto> list = page.stream()
+                .map(EventMapper::toShortDto)
+                .toList();
+        log.info("Список событий после фильтрации {}", list);
+        return list;
+    }
+
+    private Sort getSort(String sort) {
+        if ("VIEWS".equalsIgnoreCase(sort)) {
+            return Sort.by(Sort.Direction.DESC, "views");
+        }
+        return Sort.by(Sort.Direction.ASC, "eventDate");
+    }
+
+    @Override
+    public EventFullDto getEvent(Long eventId) {
+        EventFullDto dto = eventRepository.findById(eventId)
+                .map(EventMapper::toFullDto)
+                .orElseThrow(() -> new NotFoundException("Событие " + eventId + " не найдено"));
+        if (dto.getState().equals(EventState.PENDING)) {throw new NotFoundException("Событие " + eventId + " не найдено");}
+        return dto;
     }
 }

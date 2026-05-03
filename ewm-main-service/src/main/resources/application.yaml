@@ -13,3 +13,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+    stats-server:
+      url: http://stat-server:9090

@@ -1,15 +1,14 @@
 package ru.practicum.explorewithme.service.event.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import ru.practicum.explorewithme.service.category.dal.CategoryRepository;
 import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.event.dal.EventRepository;
@@ -34,6 +33,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -191,5 +192,42 @@ class EventServiceImplTest {
         event.setTitle("title");
         event.setCreatedOn(LocalDateTime.now());
         return event;
+    }
+
+    @Test
+    void shouldReturnEvents() {
+
+        EventSearchParams params = EventSearchParams.builder()
+                .from(0)
+                .size(10)
+                .sort("VIEWS")
+                .build();
+
+        Page<Event> page = new PageImpl<>(List.of(new Event()));
+
+        when(eventRepository.findAll(ArgumentMatchers.<BooleanExpression>any(), any(Pageable.class)))
+                .thenReturn(page);
+
+        List<EventShortDto> result = eventService.getEvents(params);
+
+        assertFalse(result.isEmpty());
+        verify(eventRepository, times(1))
+                .findAll(any(BooleanExpression.class), any(Pageable.class));
+    }
+
+    @Test
+    void shouldReturnEventById() {
+
+        Event event = new Event();
+        event.setId(1L);
+        event.setState(EventState.PUBLISHED);
+
+        when(eventRepository.findById(1L))
+                .thenReturn(Optional.of(event));
+
+        EventFullDto dto = eventService.getEvent(1L);
+
+        assertNotNull(dto);
+        verify(eventRepository).findById(1L);
     }
 }

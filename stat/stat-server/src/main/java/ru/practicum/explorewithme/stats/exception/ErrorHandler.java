@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -60,7 +61,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionResponse handleConstraintViolation(ConstraintViolationException e) {
         String errorMessage = e.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage)
+                .map(v -> "Поле: " + v.getPropertyPath() + ". Ошибка: " + v.getMessage())
                 .collect(Collectors.joining("; "));
 
         ExceptionResponse errorResponse = new ExceptionResponse(
@@ -157,5 +158,17 @@ public class ErrorHandler {
         );
         log.error("Произошла непредвиденная ошибка", e);
         return errorResponse;
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionResponse handleIntegrityViolation(final DataIntegrityViolationException e) {
+        ExceptionResponse response = new ExceptionResponse(
+                "Ошибка валидации при сохранении в БД",
+                e.getMessage());
+
+                log.warn("Data integrity violation: {}", e.getMessage());
+
+                return response;
     }
 }

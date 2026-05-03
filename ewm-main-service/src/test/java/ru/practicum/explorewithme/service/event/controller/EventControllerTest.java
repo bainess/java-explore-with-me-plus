@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WebMvcTest(UserEventController.class)
 @WebMvcTest(EventPrivateController.class)
 @Import(ErrorHandler.class)
 class EventControllerTest {
