@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
 import ru.practicum.explorewithme.service.event.dto.EventSearchParams;
@@ -14,8 +15,10 @@ import ru.practicum.explorewithme.service.event.service.EventService;
 import ru.practicum.explorewithme.service.exception.BadRequestException;
 import ru.practicum.explorewithme.stats.client.StatsClient;
 import ru.practicum.explorewithme.stats.dto.EndpointHitDTO;
+import ru.practicum.explorewithme.stats.dto.ViewStatsDTO;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -61,10 +64,9 @@ public class PublicEventController {
 
     @GetMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto getEventById(@PathVariable(name = "eventId") Long eventId,
+    public EventFullDto getEventByIdAndPublished(@PathVariable(name = "eventId") Long eventId,
                                      HttpServletRequest request) {
         log.info("Запрос на получение события {}", eventId);
-        EventFullDto event = eventService.getEvent(eventId);
 
         EndpointHitDTO hit = new EndpointHitDTO();
         hit.setApp("ewm-main-service");
@@ -72,6 +74,16 @@ public class PublicEventController {
         hit.setIp(request.getRemoteAddr());
         hit.setTimestamp(LocalDateTime.now());
         statsClient.saveHit(hit);
+
+        EventFullDto event = eventService.getEvent(eventId);
+        final DateTimeFormatter FORMATTER =
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.parse(event.getCreatedOn(), FORMATTER);
+        ResponseEntity<List<ViewStatsDTO>> response = statsClient.getStats(dateTime, LocalDateTime.now(), List.of("/events/" + eventId), false);
+        List<ViewStatsDTO>  stats = response.getBody();
+
+        long views = (stats == null) ? 0 : stats.getFirst().getHits();
+        event.setViews(views);
         return event;
     }
 }

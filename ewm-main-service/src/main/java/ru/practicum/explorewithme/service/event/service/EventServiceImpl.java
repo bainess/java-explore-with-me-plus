@@ -122,19 +122,19 @@ public class EventServiceImpl implements EventService {
         return list;
     }
 
-    @Override
-    public EventFullDto getEvent(Long eventId) {
-        return eventRepository.findById(eventId)
-                .map(EventMapper::toFullDto)
-                .orElseThrow(() -> new NotFoundException("Событие " + eventId + " не найдено"));
-
-    }
-
-
     private Sort getSort(String sort) {
         if ("VIEWS".equalsIgnoreCase(sort)) {
             return Sort.by(Sort.Direction.DESC, "views");
         }
         return Sort.by(Sort.Direction.ASC, "eventDate");
+    }
+
+    @Override
+    public EventFullDto getEvent(Long eventId) {
+        EventFullDto dto = eventRepository.findById(eventId)
+                .map(EventMapper::toFullDto)
+                .orElseThrow(() -> new NotFoundException("Событие " + eventId + " не найдено"));
+        if (dto.getState().equals(EventState.PENDING)) {throw new NotFoundException("Событие " + eventId + " не найдено");}
+        return dto;
     }
 }
