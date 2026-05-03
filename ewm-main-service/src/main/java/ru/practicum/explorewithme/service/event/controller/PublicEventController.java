@@ -52,7 +52,7 @@ public class PublicEventController {
                 .text(text)
                 .categories(categories)
                 .paid(paid)
-                .rangeStart(rangeEnd)
+                .rangeStart(rangeStart)
                 .rangeEnd(rangeEnd)
                 .onlyAvailable(onlyAvailable)
                 .sort(sort)
@@ -68,22 +68,26 @@ public class PublicEventController {
                                      HttpServletRequest request) {
         log.info("Запрос на получение события {}", eventId);
 
+//        обновляеет статистику по событию
+
         EndpointHitDTO hit = new EndpointHitDTO();
         hit.setApp("ewm-main-service");
         hit.setUri(request.getRequestURI());
         hit.setIp(request.getRemoteAddr());
         hit.setTimestamp(LocalDateTime.now());
         statsClient.saveHit(hit);
-
+// получает событие
         EventFullDto event = eventService.getEvent(eventId);
+
+//        получает статистику по событию
         final DateTimeFormatter FORMATTER =
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime dateTime = LocalDateTime.parse(event.getCreatedOn(), FORMATTER);
         ResponseEntity<List<ViewStatsDTO>> response = statsClient.getStats(dateTime, LocalDateTime.now(), List.of("/events/" + eventId), false);
         List<ViewStatsDTO>  stats = response.getBody();
-
         long views = (stats == null) ? 0 : stats.getFirst().getHits();
         event.setViews(views);
+
         return event;
     }
 }
