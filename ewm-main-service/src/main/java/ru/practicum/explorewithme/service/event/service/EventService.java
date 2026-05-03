@@ -2,6 +2,7 @@ package ru.practicum.explorewithme.service.event.service;
 
 import ru.practicum.explorewithme.service.event.dto.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
