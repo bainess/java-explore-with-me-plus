@@ -208,7 +208,7 @@ class EventServiceImplTest {
         when(eventRepository.findAll(ArgumentMatchers.<BooleanExpression>any(), any(Pageable.class)))
                 .thenReturn(page);
 
-        List<EventShortDto> result = eventService.getEvents(params);
+        List<EventShortDto> result = eventService.getEventsPublic(params);
 
         assertFalse(result.isEmpty());
         verify(eventRepository, times(1))
@@ -225,7 +225,7 @@ class EventServiceImplTest {
         when(eventRepository.findById(1L))
                 .thenReturn(Optional.of(event));
 
-        EventFullDto dto = eventService.getEvent(1L);
+        EventFullDto dto = eventService.getEventPublic(1L);
 
         assertNotNull(dto);
         verify(eventRepository).findById(1L);

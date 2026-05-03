@@ -2,10 +2,12 @@ package ru.practicum.explorewithme.service.event.service.predicate;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import ru.practicum.explorewithme.service.event.dto.EventSearchParams;
+import ru.practicum.explorewithme.service.event.dto.EventSearchParamsAdmin;
 import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.model.QEvent;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class EventPredicate {
     public static BooleanExpression build(EventSearchParams params) {
@@ -31,6 +33,33 @@ public class EventPredicate {
 
         if (params.getRangeEnd() != null) {
             predicate = predicate.and(event.eventDate.loe(params.getRangeEnd()));
+        }
+
+        return predicate;
+    }
+
+    public static BooleanExpression buildAdmin(EventSearchParamsAdmin params) {
+        QEvent event = QEvent.event;
+        BooleanExpression predicate = event.isNotNull();
+
+        if (params.getUsers() !=null && !params.getUsers().isEmpty()) {
+            predicate = predicate.and(event.initiator.id.in(params.getUsers()));
+        }
+
+        if (params.getStates() != null && !params.getStates().isEmpty()) {
+            predicate = predicate.and(event.state.in(params.getStates()));
+        }
+
+        if (params.getCategories() != null && !params.getCategories().isEmpty()) {
+            predicate = predicate.and(event.category.id.in(params.getCategories()));
+        }
+
+        if (params.getRangeStart() != null) {
+            predicate = predicate.and(event.eventDate.goe(params.getRangeStart()));
+        }
+
+        if (params.getRangeEnd() != null) {
+            predicate = predicate.and(event.eventDate.goe(params.getRangeEnd()));
         }
 
         return predicate;

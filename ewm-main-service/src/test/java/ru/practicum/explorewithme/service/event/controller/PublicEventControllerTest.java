@@ -38,7 +38,7 @@ public class PublicEventControllerTest {
 
         List<EventShortDto> events = List.of(new EventShortDto());
 
-        when(eventService.getEvents(any()))
+        when(eventService.getEventsPublic(any()))
                 .thenReturn(events);
 
         mockMvc.perform(get("/events")
@@ -53,7 +53,7 @@ public class PublicEventControllerTest {
                         .param("size", "10"))
                 .andExpect(status().isOk());
 
-        verify(eventService, times(1)).getEvents(any());
+        verify(eventService, times(1)).getEventsPublic(any());
     }
 
     @Test
@@ -74,7 +74,7 @@ public class PublicEventControllerTest {
         event.setId(eventId);
         event.setCreatedOn("2025-01-01 10:00:00");
 
-        when(eventService.getEvent(eventId)).thenReturn(event);
+        when(eventService.getEventPublic(eventId)).thenReturn(event);
 
         List<ViewStatsDTO> statsList = List.of(
                 new ViewStatsDTO("ewm-main-service", "/events/1", 5L)

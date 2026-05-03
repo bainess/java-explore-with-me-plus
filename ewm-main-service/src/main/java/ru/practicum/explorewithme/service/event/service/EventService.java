@@ -1,6 +1,7 @@
 package ru.practicum.explorewithme.service.event.service;
 
 import ru.practicum.explorewithme.service.event.dto.*;
+import ru.practicum.explorewithme.service.event.enums.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,7 +15,11 @@ public interface EventService {
 
     EventFullDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest request);
 
-    List<EventShortDto> getEvents(EventSearchParams params);
+    List<EventShortDto> getEventsPublic(EventSearchParams params);
 
-    EventFullDto getEvent(Long eventId);
+    EventFullDto getEventPublic(Long eventId);
+
+    List<EventFullDto> getEventsByAdmin(EventSearchParamsAdmin params);
+
+    EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest request);
 }

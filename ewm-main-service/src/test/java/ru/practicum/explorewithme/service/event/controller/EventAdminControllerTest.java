@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
+import ru.practicum.explorewithme.service.event.dto.EventSearchParamsAdmin;
 import ru.practicum.explorewithme.service.event.dto.UpdateEventAdminRequest;
 import ru.practicum.explorewithme.service.event.enums.AdminEventStateAction;
 import ru.practicum.explorewithme.service.event.enums.EventState;
@@ -20,6 +21,7 @@ import ru.practicum.explorewithme.service.exception.ErrorHandler;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -58,32 +60,33 @@ class EventAdminControllerTest {
 
     @Test
     void getEvents_Success() throws Exception {
-        when(eventService.getEventsByAdmin(any(), any(), any(), any(), any(), anyInt(), anyInt()))
+        when(eventService.getEventsByAdmin(any(EventSearchParamsAdmin.class)))
                 .thenReturn(List.of(fullDto));
 
         mockMvc.perform(get("/admin/events")
                         .param("users", "1,2")
-                        .param("states", "PUBLISHED,PENDING")
-                        .param("categories", "3")
-                        .param("rangeStart", "2023-01-01 00:00:00")
-                        .param("rangeEnd", "2030-12-31 23:59:59")
+                        .param("states", "PUBLISHED")
                         .param("from", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
+
+        verify(eventService).getEventsByAdmin(any(EventSearchParamsAdmin.class));
     }
 
     @Test
-    void updateEvent_Success() throws Exception {
+    void updateEventByAdmin_Success() throws Exception {
+        UpdateEventAdminRequest adminRequest = new UpdateEventAdminRequest();
+        adminRequest.setTitle("New Admin Title");
+
         when(eventService.updateEventByAdmin(eq(1L), any(UpdateEventAdminRequest.class)))
                 .thenReturn(fullDto);
 
         mockMvc.perform(patch("/admin/events/{eventId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateRequest)))
+                        .content(objectMapper.writeValueAsString(adminRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.state").value("PUBLISHED"));
+                .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test

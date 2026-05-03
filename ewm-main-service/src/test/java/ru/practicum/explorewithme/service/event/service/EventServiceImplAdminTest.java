@@ -1,5 +1,6 @@
 package ru.practicum.explorewithme.service.event.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,11 +14,13 @@ import ru.practicum.explorewithme.service.category.dal.CategoryRepository;
 import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.event.dal.EventRepository;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
+import ru.practicum.explorewithme.service.event.dto.EventSearchParamsAdmin;
 import ru.practicum.explorewithme.service.event.dto.UpdateEventAdminRequest;
 import ru.practicum.explorewithme.service.event.enums.AdminEventStateAction;
 import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.model.Event;
 import ru.practicum.explorewithme.service.event.model.Location;
+import ru.practicum.explorewithme.service.event.service.predicate.EventPredicate;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.user.model.User;
 import ru.practicum.explorewithme.service.request.dal.EventRequestRepository;
@@ -72,14 +75,15 @@ class EventServiceImplAdminTest {
 
     @Test
     void getEventsByAdmin_Success() {
-        when(eventRepository.findAll(any(Specification.class), any(Pageable.class)))
+        when(eventRepository.findAll(any(BooleanExpression.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(event)));
         when(requestRepository.countConfirmedRequestsByEventIds(anyList())).thenReturn(Collections.emptyList());
 
-        List<EventFullDto> result = eventService.getEventsByAdmin(null, null, null, null, null, 0, 10);
+        EventSearchParamsAdmin params = new EventSearchParamsAdmin(null, null, null, null, null, 0, 10);
+        List<EventFullDto> result = eventService.getEventsByAdmin(params);
 
         assertThat(result).hasSize(1);
-        verify(eventRepository).findAll(any(Specification.class), any(Pageable.class));
+        verify(eventRepository).findAll(any(BooleanExpression.class), any(Pageable.class));
     }
 
     @Test

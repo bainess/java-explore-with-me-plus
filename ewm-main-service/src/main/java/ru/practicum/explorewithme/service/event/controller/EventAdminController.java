@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
+import ru.practicum.explorewithme.service.event.dto.EventSearchParamsAdmin;
 import ru.practicum.explorewithme.service.event.dto.UpdateEventAdminRequest;
 import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.service.EventService;
@@ -27,7 +28,16 @@ public class EventAdminController {
                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                         @RequestParam(defaultValue = "0") int from,
                                         @RequestParam(defaultValue = "10") int size) {
-        return eventService.getEventsByAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
+        EventSearchParamsAdmin params = EventSearchParamsAdmin.builder()
+                .users(users)
+                .states(states)
+                .categories(categories)
+                .rangeStart(rangeStart)
+                .rangeEnd(rangeEnd)
+                .from(from)
+                .size(size)
+                .build();
+        return eventService.getEventsByAdmin(params);
     }
 
     @PatchMapping("/{eventId}")

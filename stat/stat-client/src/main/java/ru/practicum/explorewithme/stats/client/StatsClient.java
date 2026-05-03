@@ -2,6 +2,7 @@ package ru.practicum.explorewithme.stats.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -23,7 +24,13 @@ public class StatsClient extends BaseClient {
     }
 
     public ResponseEntity<Object> saveHit(EndpointHitDTO hitDto) {
-        return post("/hit", hitDto);
+        try {
+            log.info("Отправка статистики на сервер: {}", hitDto);
+            return post("/hit", hitDto);
+        } catch (Exception e) {
+            log.warn("Не удалось сохранить хит в статистику. Ошибка: {}. Тело: {}", e.getMessage(), hitDto);
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+        }
     }
 
     public ResponseEntity<List<ViewStatsDTO>> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {

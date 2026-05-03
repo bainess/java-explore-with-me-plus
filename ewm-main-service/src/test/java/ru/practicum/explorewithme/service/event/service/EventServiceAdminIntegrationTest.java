@@ -9,6 +9,7 @@ import ru.practicum.explorewithme.service.category.dto.CategoryDto;
 import ru.practicum.explorewithme.service.category.dto.NewCategoryRequest;
 import ru.practicum.explorewithme.service.category.service.CategoryService;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
+import ru.practicum.explorewithme.service.event.dto.EventSearchParamsAdmin;
 import ru.practicum.explorewithme.service.event.dto.LocationDto;
 import ru.practicum.explorewithme.service.event.dto.NewEventDto;
 import ru.practicum.explorewithme.service.event.enums.EventState;
@@ -52,8 +53,8 @@ class EventServiceAdminIntegrationTest {
         eventService.addEvent(user1.getId(), buildDto("Event 1", LocalDateTime.now().plusDays(1)));
         eventService.addEvent(user2.getId(), buildDto("Event 2", LocalDateTime.now().plusDays(2)));
 
-        List<EventFullDto> result = eventService.getEventsByAdmin(
-                List.of(user1.getId()), null, null, null, null, 0, 10);
+        EventSearchParamsAdmin params = new EventSearchParamsAdmin(List.of(user1.getId()), null, null, null, null, 0, 10);
+        List<EventFullDto> result = eventService.getEventsByAdmin(params);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getInitiator().getId()).isEqualTo(user1.getId());
@@ -62,9 +63,9 @@ class EventServiceAdminIntegrationTest {
     @Test
     void getEventsByAdmin_FilterByStates() {
         eventService.addEvent(user1.getId(), buildDto("Event 1", LocalDateTime.now().plusDays(1)));
-
-        List<EventFullDto> result = eventService.getEventsByAdmin(
-                null, List.of(EventState.PENDING), null, null, null, 0, 10);
+EventSearchParamsAdmin params = new EventSearchParamsAdmin(
+        null, List.of(EventState.PENDING), null, null, null, 0, 10);
+        List<EventFullDto> result = eventService.getEventsByAdmin(params);
 
         assertThat(result).isNotEmpty();
         assertThat(result.get(0).getState()).isEqualTo(EventState.PENDING);
@@ -76,8 +77,8 @@ class EventServiceAdminIntegrationTest {
         eventService.addEvent(user1.getId(), buildDto("Event 1", now.plusDays(1)));
         eventService.addEvent(user1.getId(), buildDto("Event 2", now.plusDays(5)));
 
-        List<EventFullDto> result = eventService.getEventsByAdmin(
-                null, null, null, now.plusDays(2), now.plusDays(6), 0, 10);
+        List<EventFullDto> result = eventService.getEventsByAdmin(new EventSearchParamsAdmin(
+                null, null, null, now.plusDays(2), now.plusDays(6), 0, 10));
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getTitle()).isEqualTo("Event 2");
