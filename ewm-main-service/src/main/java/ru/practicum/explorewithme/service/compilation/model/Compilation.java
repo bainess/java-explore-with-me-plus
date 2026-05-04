@@ -1,6 +1,7 @@
 package ru.practicum.explorewithme.service.compilation.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ public class Compilation {
     private Long id;
 
     @Setter
+    @NotBlank
     @Column(nullable = false, unique = true, length = 50)
     private String title;
 
