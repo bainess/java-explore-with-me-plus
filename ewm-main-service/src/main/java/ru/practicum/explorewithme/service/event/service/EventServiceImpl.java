@@ -227,7 +227,7 @@ public class EventServiceImpl implements EventService {
         long views = 0;
         try {
 
-            ResponseEntity<List<ViewStatsDTO>> response = statsClient.getStats(dateTime, LocalDateTime.now(), List.of("/events/" + eventId), false);
+            ResponseEntity<List<ViewStatsDTO>> response = statsClient.getStats(dateTime, LocalDateTime.now(), List.of("/events/" + eventId), true);
             List<ViewStatsDTO> stats = response.getBody();
             views = (stats == null) ? 0 : stats.getFirst().getHits();
         } catch (Exception e) {
