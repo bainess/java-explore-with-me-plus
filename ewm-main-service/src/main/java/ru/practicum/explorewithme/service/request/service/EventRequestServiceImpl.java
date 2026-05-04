@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.service.event.dal.EventRepository;
+import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.model.Event;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
@@ -164,17 +165,22 @@ public class EventRequestServiceImpl implements EventRequestService {
         if (event.getInitiator().getId() == userId)
             throw new ConflictException("Инициатор не может присылать запрос на свое событие");
 
-
+        if (!event.getState().equals(EventState.PUBLISHED)) {throw new ConflictException("Нельзя добавиться в неопубликованное событие");}
         ParticipationRequest request = ParticipationRequest.builder()
                 .requester(participant)
                 .event(event)
                 .created(LocalDateTime.now())
                 .build();
 
+        Integer numParticipants = eventRequestRepository.countByEventId(eventId);
+        log.info("limit={}, confirmed={}", event.getParticipantLimit(), numParticipants);
+
         if (event.getParticipantLimit() == 0) {
             request.setStatus(ParticipationRequestStatus.CONFIRMED);
-        } else {
+        } else if (event.getParticipantLimit() > numParticipants)  {
             request.setStatus(ParticipationRequestStatus.PENDING);
+        } else {
+            throw new ConflictException("Количество участников события не может превышать " + event.getParticipantLimit());
         }
         return ParticipationRequestMapper.toDto(eventRequestRepository.save(request));
     }

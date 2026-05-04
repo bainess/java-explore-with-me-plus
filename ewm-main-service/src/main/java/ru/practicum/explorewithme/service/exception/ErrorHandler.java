@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -95,5 +96,16 @@ public class ErrorHandler {
         String message = "Отсутствует обязательный параметр" + e.getParameterName();
         log.warn("Ошибка запроса - {}", message);
         return new ApiError(HttpStatus.BAD_REQUEST.name(), "некорректный запрос", message);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        log.warn("Некорректный JSON: {}", e.getMessage());
+        return new ApiError(
+                HttpStatus.BAD_REQUEST.name(),
+                "Ошибка в теле запроса",
+                "Required request body is missing or invalid"
+        );
     }
 }

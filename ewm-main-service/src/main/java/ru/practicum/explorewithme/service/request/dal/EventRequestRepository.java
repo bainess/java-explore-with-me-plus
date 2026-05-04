@@ -26,4 +26,6 @@ public interface EventRequestRepository extends JpaRepository<ParticipationReque
     List<ConfirmedRequestsCount> countConfirmedRequestsByEventIds(@Param("eventIds") List<Long> eventIds);
 
     Boolean existsByRequesterIdAndEventId(Long userId, Long eventId);
+
+    Integer countByEventId(Long eventId);
 }
