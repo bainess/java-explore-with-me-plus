@@ -13,7 +13,6 @@ import ru.practicum.explorewithme.service.category.mapper.CategoryMapper;
 import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.event.dal.EventRepository;
 import ru.practicum.explorewithme.service.exception.ConflictException;
-import ru.practicum.explorewithme.service.exception.DuplicatedDataException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
 
 import java.util.List;
@@ -38,7 +37,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto changeCategory(Long catId, UpdateCategoryRequest request) {
-        if (!categoryRepository.findByNameIgnoreCaseAndIdNot(request.getName(), catId).isEmpty()) {throw new ConflictException("Такая категория уже существует" + request.getName());}
+        if (!categoryRepository.findByNameIgnoreCaseAndIdNot(request.getName(), catId).isEmpty()) {
+            throw new ConflictException("Такая категория уже существует" + request.getName());
+        }
         Category category = categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Категория " + catId + " не была найдена"));
         Category updatedCategory = CategoryMapper.mapToUpdateCategory(request, category);
 
@@ -48,7 +49,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void removeCategory(Long catId) {
-        if (eventRepository.countByCategoryId(catId) > 0) {throw new ConflictException("В этой категории уже существуют события");}
+        if (eventRepository.countByCategoryId(catId) > 0) {
+            throw new ConflictException("В этой категории уже существуют события");
+        }
         Category category = categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Категория " + catId + " не была найдена"));
         categoryRepository.delete(category);
     }
