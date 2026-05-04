@@ -17,6 +17,8 @@ import ru.practicum.explorewithme.service.category.dto.CategoryDto;
 import ru.practicum.explorewithme.service.category.dto.NewCategoryRequest;
 import ru.practicum.explorewithme.service.category.dto.UpdateCategoryRequest;
 import ru.practicum.explorewithme.service.category.model.Category;
+import ru.practicum.explorewithme.service.event.dal.EventRepository;
+import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.DuplicatedDataException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
 
@@ -33,6 +35,9 @@ class CategoryServiceImplTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private EventRepository eventRepository;
 
     NewCategoryRequest request;
     Category category;
@@ -66,7 +71,7 @@ class CategoryServiceImplTest {
         Mockito.when(categoryRepository.existsByName(Mockito.anyString()))
                 .thenReturn(true);
 
-        assertThrows(DuplicatedDataException.class, () -> categoryService.createCategory(request));
+        assertThrows(ConflictException.class, () -> categoryService.createCategory(request));
 
         verify(categoryRepository, times(1)).existsByName(request.getName());
         verify(categoryRepository, never()).save(any(Category.class));
@@ -105,6 +110,9 @@ class CategoryServiceImplTest {
     void shouldDeleteCategory() {
         when(categoryRepository.findById(category.getId()))
                 .thenReturn(Optional.of(category));
+
+        when(eventRepository.countByCategoryId(anyLong()))
+                .thenReturn(0);
 
         categoryService.removeCategory(category.getId());
 
