@@ -162,7 +162,7 @@ public class EventRequestServiceImpl implements EventRequestService {
         User participant = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь " + userId + " не найден"));
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие " + eventId + " не найдено"));
 
-        if (event.getInitiator().getId() == userId)
+        if (event.getInitiator().getId().equals(userId))
             throw new ConflictException("Инициатор не может присылать запрос на свое событие");
 
         if (!event.getState().equals(EventState.PUBLISHED)) {
