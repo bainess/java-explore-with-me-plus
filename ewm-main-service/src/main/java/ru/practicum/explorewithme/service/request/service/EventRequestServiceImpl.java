@@ -165,7 +165,9 @@ public class EventRequestServiceImpl implements EventRequestService {
         if (event.getInitiator().getId() == userId)
             throw new ConflictException("Инициатор не может присылать запрос на свое событие");
 
-        if (!event.getState().equals(EventState.PUBLISHED)) {throw new ConflictException("Нельзя добавиться в неопубликованное событие");}
+        if (!event.getState().equals(EventState.PUBLISHED)) {
+            throw new ConflictException("Нельзя добавиться в неопубликованное событие");
+        }
         ParticipationRequest request = ParticipationRequest.builder()
                 .requester(participant)
                 .event(event)
@@ -177,11 +179,24 @@ public class EventRequestServiceImpl implements EventRequestService {
 
         if (event.getParticipantLimit() == 0) {
             request.setStatus(ParticipationRequestStatus.CONFIRMED);
-        } else if (event.getParticipantLimit() > numParticipants)  {
+        } else if (event.getParticipantLimit() > numParticipants) {
             request.setStatus(ParticipationRequestStatus.PENDING);
         } else {
             throw new ConflictException("Количество участников события не может превышать " + event.getParticipantLimit());
         }
         return ParticipationRequestMapper.toDto(eventRequestRepository.save(request));
+    }
+
+    public List<ParticipationRequestDto> getUserEvents(Long userId) {
+        return eventRequestRepository.findAllByRequesterId(userId).stream()
+                .map(ParticipationRequestMapper::toDto)
+                .toList();
+    }
+
+    public ParticipationRequestDto removeParticipation(Long userId, Long requestId) {
+        ParticipationRequest request = eventRequestRepository.findByIdAndRequesterId(requestId, userId);
+        eventRequestRepository.delete(request);
+        request.setStatus(ParticipationRequestStatus.CANCELED);
+        return ParticipationRequestMapper.toDto(request);
     }
 }

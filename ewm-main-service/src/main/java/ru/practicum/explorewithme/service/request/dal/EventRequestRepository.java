@@ -20,12 +20,16 @@ public interface EventRequestRepository extends JpaRepository<ParticipationReque
     List<ParticipationRequest> findAllByIdInAndStatus(List<Long> ids, ParticipationRequestStatus status);
 
     @Query("SELECT new ru.practicum.explorewithme.service.request.dto.ConfirmedRequestsCount(r.event.id, COUNT(r.id)) " +
-           "FROM ParticipationRequest r " +
-           "WHERE r.event.id IN :eventIds AND r.status = 'CONFIRMED' " +
-           "GROUP BY r.event.id")
+            "FROM ParticipationRequest r " +
+            "WHERE r.event.id IN :eventIds AND r.status = 'CONFIRMED' " +
+            "GROUP BY r.event.id")
     List<ConfirmedRequestsCount> countConfirmedRequestsByEventIds(@Param("eventIds") List<Long> eventIds);
 
     Boolean existsByRequesterIdAndEventId(Long userId, Long eventId);
 
     Integer countByEventId(Long eventId);
+
+    List<ParticipationRequest> findAllByRequesterId(Long userId);
+
+    ParticipationRequest findByIdAndRequesterId(Long requestId, Long userId);
 }

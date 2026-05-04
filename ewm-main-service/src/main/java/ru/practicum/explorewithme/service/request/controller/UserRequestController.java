@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.service.request.dto.ParticipationRequestDto;
 import ru.practicum.explorewithme.service.request.service.EventRequestService;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -21,4 +23,17 @@ public class UserRequestController {
         return requestService.saveEventParticipation(userId, eventId);
     }
 
+    @GetMapping("/{userId}/requests")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ParticipationRequestDto> getUserRequests(@PathVariable(name = "userId") Long userId) {
+        log.info("Запрос на получение событий, в которых участвует пользователь {}", userId);
+        return requestService.getUserEvents(userId);
+    }
+
+    @PatchMapping("{userId}/requests/{requestId}/cancel")
+    @ResponseStatus(HttpStatus.OK)
+    public ParticipationRequestDto removeParticipation(@PathVariable(name = "userId") Long userId,
+                                                       @PathVariable(name = "requestId") Long requestId) {
+        return requestService.removeParticipation(userId, requestId);
+    }
 }
