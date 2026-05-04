@@ -11,4 +11,6 @@ public interface EventRequestService {
 
     EventRequestStatusUpdateResult updateEventRequests(Long userId, Long eventId,
                                                        EventRequestStatusUpdateRequest request);
+
+    ParticipationRequestDto saveEventParticipation(Long userId, Long eventId);
 }

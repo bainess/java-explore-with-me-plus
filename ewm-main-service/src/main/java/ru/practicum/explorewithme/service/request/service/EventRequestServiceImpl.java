@@ -15,7 +15,10 @@ import ru.practicum.explorewithme.service.request.dto.ParticipationRequestDto;
 import ru.practicum.explorewithme.service.request.enums.ParticipationRequestStatus;
 import ru.practicum.explorewithme.service.request.mapper.ParticipationRequestMapper;
 import ru.practicum.explorewithme.service.request.model.ParticipationRequest;
+import ru.practicum.explorewithme.service.user.dal.UserRepository;
+import ru.practicum.explorewithme.service.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +31,7 @@ public class EventRequestServiceImpl implements EventRequestService {
 
     private final EventRepository eventRepository;
     private final EventRequestRepository eventRequestRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
@@ -148,5 +152,23 @@ public class EventRequestServiceImpl implements EventRequestService {
                 .confirmedRequests(confirmed.stream().map(ParticipationRequestMapper::toDto).collect(Collectors.toList()))
                 .rejectedRequests(rejected.stream().map(ParticipationRequestMapper::toDto).collect(Collectors.toList()))
                 .build();
+    }
+
+    public ParticipationRequestDto saveEventParticipation(Long userId, Long eventId) {
+        User participant = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь " + userId + " не найден"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие " + eventId+ " не найдено"));
+
+        ParticipationRequest request = ParticipationRequest.builder()
+                .requester(participant)
+                .event(event)
+                .created(LocalDateTime.now())
+                .build();
+
+        if (event.getParticipantLimit() == 0) {
+            request.setStatus(ParticipationRequestStatus.CONFIRMED);
+        } else {
+            request.setStatus(ParticipationRequestStatus.PENDING);
+        }
+        return ParticipationRequestMapper.toDto(eventRequestRepository.save(request));
     }
 }
