@@ -19,7 +19,6 @@ import ru.practicum.explorewithme.service.category.dto.UpdateCategoryRequest;
 import ru.practicum.explorewithme.service.category.model.Category;
 import ru.practicum.explorewithme.service.event.dal.EventRepository;
 import ru.practicum.explorewithme.service.exception.ConflictException;
-import ru.practicum.explorewithme.service.exception.DuplicatedDataException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
 
 import java.util.List;
