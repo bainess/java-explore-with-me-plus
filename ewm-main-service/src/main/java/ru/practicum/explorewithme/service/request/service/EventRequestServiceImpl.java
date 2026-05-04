@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.service.event.dal.EventRepository;
-import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.model.Event;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
@@ -160,9 +159,10 @@ public class EventRequestServiceImpl implements EventRequestService {
             throw new ConflictException("Запрос на добавление пользователя" + userId + "на событие " + eventId + " уже существует");
         }
         User participant = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь " + userId + " не найден"));
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие " + eventId+ " не найдено"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие " + eventId + " не найдено"));
 
-        if (event.getInitiator().getId() == userId ) throw new ConflictException("Инициатор не может присылать запрос на свое событие");
+        if (event.getInitiator().getId() == userId)
+            throw new ConflictException("Инициатор не может присылать запрос на свое событие");
 
 
         ParticipationRequest request = ParticipationRequest.builder()

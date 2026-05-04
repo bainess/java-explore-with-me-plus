@@ -31,7 +31,8 @@ public class CategoryAdminController {
     public CategoryDto createCategory(@PathVariable("catId") Long catId,
                                       @RequestBody UpdateCategoryRequest categoryRequest) {
         log.info("Запрос на изменение категории {}", catId);
-        if (categoryRequest.getName().length() > 50) {throw new BadRequestException("Название категории должно быть менее 50");
+        if (categoryRequest.getName().length() > 50) {
+            throw new BadRequestException("Название категории должно быть менее 50");
         }
         return categoryService.changeCategory(catId, categoryRequest);
     }
