@@ -67,7 +67,7 @@ public class EventPublicController {
                                                  HttpServletRequest request) {
         log.info("Запрос на получение события {}", eventId);
 
-//        обновляеет статистику по событию
+//        обновляет статистику по событию
 
         EndpointHitDTO hit = new EndpointHitDTO();
         hit.setApp("ewm-main-service");
