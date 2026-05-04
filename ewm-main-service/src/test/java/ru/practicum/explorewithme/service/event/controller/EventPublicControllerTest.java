@@ -5,13 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
 import ru.practicum.explorewithme.service.event.dto.EventShortDto;
 import ru.practicum.explorewithme.service.event.service.EventService;
 import ru.practicum.explorewithme.stats.client.StatsClient;
-import ru.practicum.explorewithme.stats.dto.ViewStatsDTO;
 
 import java.util.List;
 
