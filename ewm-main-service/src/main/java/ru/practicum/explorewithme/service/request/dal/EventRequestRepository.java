@@ -24,4 +24,6 @@ public interface EventRequestRepository extends JpaRepository<ParticipationReque
            "WHERE r.event.id IN :eventIds AND r.status = 'CONFIRMED' " +
            "GROUP BY r.event.id")
     List<ConfirmedRequestsCount> countConfirmedRequestsByEventIds(@Param("eventIds") List<Long> eventIds);
+
+    Boolean existsByRequesterIdAndEventId(Long userId, Long eventId);
 }
