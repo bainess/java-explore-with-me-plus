@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -86,5 +87,13 @@ public class ErrorHandler {
         log.warn("Ошибка валидации (Hibernate): {}", errors);
 
         return new ApiError(HttpStatus.BAD_REQUEST.name(), "Некорректный запрос", "Ошибка валидации Entity", errors);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleMissingArgumentParameterException(final MissingServletRequestParameterException e) {
+        String message = "Отсутствует обязательный параметр" + e.getParameterName();
+        log.warn("Ошибка запроса - {}", message);
+        return new ApiError(HttpStatus.BAD_REQUEST.name(), "некорректный запрос", message);
     }
 }
