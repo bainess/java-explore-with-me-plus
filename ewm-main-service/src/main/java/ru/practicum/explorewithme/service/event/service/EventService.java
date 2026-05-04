@@ -1,9 +1,7 @@
 package ru.practicum.explorewithme.service.event.service;
 
 import ru.practicum.explorewithme.service.event.dto.*;
-import ru.practicum.explorewithme.service.event.enums.EventState;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {

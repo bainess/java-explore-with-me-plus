@@ -7,7 +7,6 @@ import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.model.QEvent;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class EventPredicate {
     public static BooleanExpression build(EventSearchParams params) {
@@ -42,7 +41,7 @@ public class EventPredicate {
         QEvent event = QEvent.event;
         BooleanExpression predicate = event.isNotNull();
 
-        if (params.getUsers() !=null && !params.getUsers().isEmpty()) {
+        if (params.getUsers() != null && !params.getUsers().isEmpty()) {
             predicate = predicate.and(event.initiator.id.in(params.getUsers()));
         }
 

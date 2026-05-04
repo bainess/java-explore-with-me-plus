@@ -1,6 +1,5 @@
 package ru.practicum.explorewithme.stats.exception;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
@@ -167,8 +166,8 @@ public class ErrorHandler {
                 "Ошибка валидации при сохранении в БД",
                 e.getMessage());
 
-                log.warn("Data integrity violation: {}", e.getMessage());
+        log.warn("Data integrity violation: {}", e.getMessage());
 
-                return response;
+        return response;
     }
 }
