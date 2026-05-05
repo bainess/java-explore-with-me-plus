@@ -7,12 +7,11 @@ spring:
     username: postgres
     password: 54321
     driver-class-name: org.postgresql.Driver
-
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true
 
-    stats-server:
-      url: http://stat-server:9090
+stats-service:
+  url: http://localhost:9090
