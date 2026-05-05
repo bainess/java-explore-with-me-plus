@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class EventRequestServiceImpl implements EventRequestService {
 
     private final EventRepository eventRepository;
@@ -35,6 +34,7 @@ public class EventRequestServiceImpl implements EventRequestService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
         log.info("Получение заявок на событие id={} пользователя id={}", eventId, userId);
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
@@ -155,6 +155,8 @@ public class EventRequestServiceImpl implements EventRequestService {
                 .build();
     }
 
+    @Override
+    @Transactional
     public ParticipationRequestDto saveEventParticipation(Long userId, Long eventId) {
         if (eventRequestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ConflictException("Запрос на добавление пользователя" + userId + "на событие " + eventId + " уже существует");
@@ -187,12 +189,16 @@ public class EventRequestServiceImpl implements EventRequestService {
         return ParticipationRequestMapper.toDto(eventRequestRepository.save(request));
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getUserEvents(Long userId) {
         return eventRequestRepository.findAllByRequesterId(userId).stream()
                 .map(ParticipationRequestMapper::toDto)
                 .toList();
     }
 
+    @Override
+    @Transactional
     public ParticipationRequestDto removeParticipation(Long userId, Long requestId) {
         ParticipationRequest request = eventRequestRepository.findByIdAndRequesterId(requestId, userId);
         eventRequestRepository.delete(request);

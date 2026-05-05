@@ -28,15 +28,13 @@ public class EventAdminController {
                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                         @RequestParam(defaultValue = "0") int from,
                                         @RequestParam(defaultValue = "10") int size) {
-        EventSearchParamsAdmin params = EventSearchParamsAdmin.builder()
-                .users(users)
-                .states(states)
-                .categories(categories)
-                .rangeStart(rangeStart)
-                .rangeEnd(rangeEnd)
-                .from(from)
-                .size(size)
-                .build();
+        EventSearchParamsAdmin params = new EventSearchParamsAdmin(users,
+                states,
+                categories,
+                rangeStart,
+                rangeEnd,
+                from,
+                size);
         return eventService.getEventsByAdmin(params);
     }
 
