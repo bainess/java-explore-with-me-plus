@@ -24,6 +24,9 @@ public class EventSearchParams {
     private LocalDateTime rangeEnd;
     private Boolean onlyAvailable;
     private String sort;
+    @Builder.Default
     private Integer from = 0;
+
+    @Builder.Default
     private Integer size = 10;
 }
