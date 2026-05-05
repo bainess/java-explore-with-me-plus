@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class EventRequestServiceImpl implements EventRequestService {
 
     private final EventRepository eventRepository;
