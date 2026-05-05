@@ -148,6 +148,17 @@ public class ErrorHandler {
         return errorResponse;
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionResponse handleBadRequest(BadRequestException e) {
+        ExceptionResponse errorResponse = new ExceptionResponse(
+                "Некорректный запрос",
+                e.getMessage()
+        );
+        log.error("Некорректный запрос: {}", e.getMessage());
+        return errorResponse;
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionResponse handleOtherExceptions(Exception e) {
