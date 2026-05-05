@@ -155,6 +155,7 @@ public class EventRequestServiceImpl implements EventRequestService {
                 .build();
     }
 
+    @Transactional(readOnly = false)
     public ParticipationRequestDto saveEventParticipation(Long userId, Long eventId) {
         if (eventRequestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ConflictException("Запрос на добавление пользователя" + userId + "на событие " + eventId + " уже существует");
