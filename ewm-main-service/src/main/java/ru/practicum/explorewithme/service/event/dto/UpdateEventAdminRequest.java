@@ -27,7 +27,7 @@ public class UpdateEventAdminRequest {
     Boolean paid;
 
     @PositiveOrZero(message = "Лимит участников не может быть отрицательным")
-    private Integer participantLimit;
+    private int participantLimit;
 
     Boolean requestModeration;
 

@@ -24,6 +24,6 @@ public class EventSearchParams {
     private LocalDateTime rangeEnd;
     private Boolean onlyAvailable;
     private String sort;
-    private Integer from = 0;
-    private Integer size = 10;
+    private int from = 0;
+    private int size = 10;
 }

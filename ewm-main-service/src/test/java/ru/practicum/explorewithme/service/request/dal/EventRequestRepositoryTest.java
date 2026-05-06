@@ -68,7 +68,7 @@ class EventRequestRepositoryTest {
         createRequest(req2, ParticipationRequestStatus.CONFIRMED);
         createRequest(req3, ParticipationRequestStatus.PENDING);
 
-        Integer count = requestRepository.countByEventIdAndStatus(event.getId(), ParticipationRequestStatus.CONFIRMED);
+        int count = requestRepository.countByEventIdAndStatus(event.getId(), ParticipationRequestStatus.CONFIRMED);
         assertThat(count).isEqualTo(2);
     }
 

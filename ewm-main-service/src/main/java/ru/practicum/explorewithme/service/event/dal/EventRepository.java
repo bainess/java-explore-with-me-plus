@@ -13,6 +13,6 @@ public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPre
 
     Optional<Event> findByIdAndInitiatorId(Long eventId, Long initiatorId);
 
-    Integer countByCategoryId(Long catId);
+    int countByCategoryId(Long catId);
 
 }
