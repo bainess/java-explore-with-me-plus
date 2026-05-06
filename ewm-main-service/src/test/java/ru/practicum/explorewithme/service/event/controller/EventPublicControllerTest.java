@@ -79,7 +79,7 @@ public class EventPublicControllerTest {
                 .views(5L)
                 .build();
 
-        when (appProperties.getName())
+        when(appProperties.getName())
                 .thenReturn("ewm-main-service");
         when(eventService.getEventPublic(eventId)).thenReturn(event);
 
