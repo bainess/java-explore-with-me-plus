@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.explorewithme.service.config.AppProperties;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
 import ru.practicum.explorewithme.service.event.dto.EventSearchParams;
 import ru.practicum.explorewithme.service.event.dto.EventShortDto;
@@ -24,6 +25,7 @@ import java.util.List;
 @Slf4j
 public class EventPublicController {
     private final EventService eventService;
+    private final AppProperties appProperties;
 
     @Autowired
     private final StatsClient statsClient;
@@ -70,7 +72,7 @@ public class EventPublicController {
 //        обновляет статистику по событию
 
         EndpointHitDTO hit = new EndpointHitDTO();
-        hit.setApp("ewm-main-service");
+        hit.setApp(appProperties.getName());
         hit.setUri(request.getRequestURI());
         hit.setIp(request.getRemoteAddr());
         hit.setTimestamp(LocalDateTime.now());
