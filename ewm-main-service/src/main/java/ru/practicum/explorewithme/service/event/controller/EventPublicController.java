@@ -3,7 +3,6 @@ package ru.practicum.explorewithme.service.event.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -30,9 +29,6 @@ public class EventPublicController {
     @Autowired
     private final StatsClient statsClient;
 
-
-
-
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getEvents(@RequestParam(required = false) String text,
@@ -43,12 +39,19 @@ public class EventPublicController {
             @RequestParam(required = false) Boolean onlyAvailable,
             @RequestParam(required = false) String sort,
             @RequestParam(defaultValue = "0") Integer from,
-            @RequestParam(defaultValue = "10") Integer size
+            @RequestParam(defaultValue = "10") Integer size,
+            HttpServletRequest request
     ) {
         if (rangeEnd != null && rangeStart != null && rangeEnd.isBefore(rangeStart)) {
             throw new BadRequestException("rangeEnd должен быть позже rangeStart");
-
         }
+        EndpointHitDTO hit = new EndpointHitDTO();
+        hit.setApp("ewm-main-service");
+        hit.setUri(request.getRequestURI());
+        hit.setIp(request.getRemoteAddr());
+        hit.setTimestamp(LocalDateTime.now());
+        statsClient.saveHit(hit);
+
         EventSearchParams params = EventSearchParams.builder()
                 .text(text)
                 .categories(categories)
