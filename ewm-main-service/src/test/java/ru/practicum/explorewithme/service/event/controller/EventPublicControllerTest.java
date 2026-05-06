@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.explorewithme.service.config.AppProperties;
 import ru.practicum.explorewithme.service.event.dto.EventFullDto;
 import ru.practicum.explorewithme.service.event.dto.EventShortDto;
 import ru.practicum.explorewithme.service.event.service.EventService;
@@ -28,6 +29,9 @@ public class EventPublicControllerTest {
 
     @MockBean
     private StatsClient statsClient;
+
+    @MockBean
+    private AppProperties appProperties;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -75,12 +79,15 @@ public class EventPublicControllerTest {
                 .views(5L)
                 .build();
 
+        when (appProperties.getName())
+                .thenReturn("ewm-main-service");
         when(eventService.getEventPublic(eventId)).thenReturn(event);
 
         mockMvc.perform(get("/events/{id}", eventId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(eventId))
                 .andExpect(jsonPath("$.views").value(5));
+
 
         verify(statsClient, times(1)).saveHit(any());
         verify(statsClient, never()).getStats(any(), any(), any(), any());
