@@ -77,6 +77,7 @@ public class EventPublicController {
 
         EndpointHitDTO hit = new EndpointHitDTO();
         hit.setApp(appProperties.getName());
+        log.info("Название приложения {}",appProperties.getName());
         hit.setUri(request.getRequestURI());
         hit.setIp(request.getRemoteAddr());
         hit.setTimestamp(LocalDateTime.now());
