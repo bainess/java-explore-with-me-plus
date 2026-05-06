@@ -92,4 +92,5 @@ public class EventPublicControllerTest {
         verify(statsClient, times(1)).saveHit(any());
         verify(statsClient, never()).getStats(any(), any(), any(), any());
     }
+
 }
