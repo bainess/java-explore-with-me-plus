@@ -36,6 +36,7 @@ public class EventPublicControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+
     @Test
     void shouldReturnEventsWithParams() throws Exception {
 

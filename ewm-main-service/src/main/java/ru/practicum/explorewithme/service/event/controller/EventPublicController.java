@@ -1,7 +1,6 @@
 package ru.practicum.explorewithme.service.event.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +33,15 @@ public class EventPublicController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getEvents(@RequestParam(required = false) String text,
-            @RequestParam(required = false) List<Long> categories,
-            @RequestParam(required = false) Boolean paid,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-            @RequestParam(required = false) Boolean onlyAvailable,
-            @RequestParam(required = false) String sort,
-            @RequestParam(defaultValue = "0") Integer from,
-            @RequestParam(defaultValue = "10") Integer size,
-            HttpServletRequest request
+                                         @RequestParam(required = false) List<Long> categories,
+                                         @RequestParam(required = false) Boolean paid,
+                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                         @RequestParam(required = false) Boolean onlyAvailable,
+                                         @RequestParam(required = false) String sort,
+                                         @RequestParam(defaultValue = "0") Integer from,
+                                         @RequestParam(defaultValue = "10") Integer size,
+                                         HttpServletRequest request
     ) {
         if (rangeEnd != null && rangeStart != null && rangeEnd.isBefore(rangeStart)) {
             throw new BadRequestException("rangeEnd должен быть позже rangeStart");
