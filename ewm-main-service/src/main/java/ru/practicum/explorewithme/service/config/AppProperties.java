@@ -1,6 +1,7 @@
 package ru.practicum.explorewithme.service.config;
 
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -8,5 +9,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Data
 public class AppProperties {
+    @Value("${spring.application.name}")
     private String name;
 }
