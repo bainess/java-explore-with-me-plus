@@ -1,0 +1,30 @@
+Описание
+Определить контракты, необходимые для работы разработчиков C и D: DTO-классы, маппер и интерфейс сервиса управления локациями.
+
+Состав работ
+
+Создать DTO-классы в пакете ...location.dto:
+NewLocationRequest – поля name, lat, lon, radius с валидацией (@NotBlank, @Size(max=120), @NotNull, @Positive).
+UpdateLocationRequest – те же поля, но без обязательности; при необходимости можно добавить валидацию.
+LocationDto – поля id, name, lat, lon, radius.
+Создать LocationMapper (пакет ...location.mapper) со статическими методами:
+AdminLocation toEntity(NewLocationRequest request)
+LocationDto toDto(AdminLocation location)
+void updateEntity(UpdateLocationRequest request, AdminLocation location)
+Определить интерфейс LocationService в ...location.service с сигнатурами:
+LocationDto createLocation(NewLocationRequest request)
+LocationDto updateLocation(Long locId, UpdateLocationRequest request)
+void deleteLocation(Long locId)
+LocationDto getLocationById(Long locId)
+List<LocationDto> getAllLocations(int from, int size)
+Написать юнит-тесты для маппера.
+Критерии готовности
+
+DTO и маппер корректно преобразуют данные в обе стороны.
+Интерфейс сервиса согласован и готов к использованию в задачах 3 и 4 (реализация может отсутствовать).
+Выходные артефакты
+
+Классы NewLocationRequest, UpdateLocationRequest, LocationDto
+Класс LocationMapper
+Интерфейс LocationService
+Тесты маппера

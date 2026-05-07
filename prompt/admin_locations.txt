@@ -1,0 +1,30 @@
+Структура таблицы admin_locations
+id – BIGINT, первичный ключ, автоинкремент
+name – VARCHAR(120), уникальный, непустой
+lat – FLOAT, непустой (широта)
+lon – FLOAT, непустой (долгота)
+radius – FLOAT, непустой, строго положительный (радиус в километрах)
+Координаты событий
+Уже присутствуют в таблице events как поля lat FLOAT NOT NULL и lon FLOAT NOT NULL (см. schema.sql).
+
+Контракты DTO и интерфейс LocationService
+DTO:
+
+NewLocationRequest (name, lat, lon, radius) – все поля обязательны, валидация: name до 120, lat в [-90;90], lon в [-180;180], radius > 0
+UpdateLocationRequest – те же поля, но все опциональные
+LocationDto (id, name, lat, lon, radius) – возвращаемая модель
+Интерфейс LocationService:
+
+LocationDto createLocation(NewLocationRequest request);
+LocationDto updateLocation(Long locId, UpdateLocationRequest request);
+void deleteLocation(Long locId);
+LocationDto getLocationById(Long locId);
+List<LocationDto> getAllLocations(int from, int size);
+URL и формат ответов новых эндпоинтов
+POST /admin/locations – создание (201, тело LocationDto)
+PATCH /admin/locations/{locId} – обновление (200, тело LocationDto)
+DELETE /admin/locations/{locId} – удаление (204)
+GET /admin/locations – список (200, тело List<LocationDto>, параметры from, size)
+GET /admin/locations/{locId} – получение по ID (200, тело LocationDto)
+GET /admin/locations/{locId}/events – поиск событий в радиусе локации (200, тело List<EventFullDto>, параметры from, size)
+
