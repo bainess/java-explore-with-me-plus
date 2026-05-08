@@ -226,10 +226,14 @@ public class EventServiceImpl implements EventService {
         LocalDateTime dateTime = LocalDateTime.parse(event.getCreatedOn(), FORMATTER);
         long views = 0;
         try {
-
-            ResponseEntity<List<ViewStatsDTO>> response = statsClient.getStats(dateTime, LocalDateTime.now(), List.of("/events/" + eventId), true);
-            List<ViewStatsDTO> stats = response.getBody();
-            views = (stats == null) ? 0 : stats.getFirst().getHits();
+            ResponseEntity<?> response = statsClient.getStats(dateTime, LocalDateTime.now(), List.of("/events/" + eventId), true);
+            Object body = response.getBody();
+            if (body instanceof List<?> statsList && !statsList.isEmpty()) {
+                Object first = statsList.getFirst();
+                if (first instanceof ViewStatsDTO viewStats) {
+                    views = viewStats.getHits();
+                }
+            }
         } catch (Exception e) {
             log.warn("Ошибка при получении статистики для события {}: {}", eventId, e.getMessage());
         }
