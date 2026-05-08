@@ -3,6 +3,7 @@ package ru.practicum.explorewithme.service.location.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.explorewithme.service.exception.NotFoundException;
 import ru.practicum.explorewithme.service.location.dal.LocationRepository;
 import ru.practicum.explorewithme.service.location.dto.LocationDto;
 import ru.practicum.explorewithme.service.location.dto.NewLocationRequest;
@@ -26,9 +27,13 @@ public class LocationServiceImpl implements LocationService {
         return LocationMapper.toDto(location);
     }
 
+    @Transactional
     @Override
     public LocationDto updateLocation(Long locId, UpdateLocationRequest request) {
-        return null;
+        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId +" не найдена"));
+        LocationMapper.updateEntity(request, location);
+        location = locationRepository.save(location);
+        return LocationMapper.toDto(location);
     }
 
     @Override
