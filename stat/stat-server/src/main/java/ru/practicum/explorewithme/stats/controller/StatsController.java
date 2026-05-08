@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.stats.dto.EndpointHitDTO;
 import ru.practicum.explorewithme.stats.dto.ViewStatsDTO;
+import ru.practicum.explorewithme.stats.exception.BadRequestException;
 import ru.practicum.explorewithme.stats.service.StatsService;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,9 @@ public class StatsController {
             @RequestParam(required = false) List<String> uris,
             @RequestParam(required = false) Boolean unique
     ) {
+        if (end.isBefore(start)) {
+            throw new BadRequestException("end должен быть позже start");
+        }
         return statsService.getStats(start, end, uris, unique);
     }
 }

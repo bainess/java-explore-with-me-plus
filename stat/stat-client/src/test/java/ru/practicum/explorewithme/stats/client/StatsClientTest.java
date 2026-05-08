@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import ru.practicum.explorewithme.stats.dto.EndpointHitDTO;
+import ru.practicum.explorewithme.stats.dto.ViewStatsDTO;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -84,8 +85,9 @@ class StatsClientTest {
                 .setResponseCode(500)
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
 
-        // BaseClient.post() не обрабатывает ошибки, поэтому будет исключение
-        assertThrows(WebClientResponseException.class, () -> statsClient.saveHit(hit));
+        ResponseEntity<Object> response = statsClient.saveHit(hit);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     // ----------------- getStats -----------------
@@ -102,7 +104,7 @@ class StatsClientTest {
                 .setBody(responseBody)
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
 
-        ResponseEntity<Object> response = statsClient.getStats(start, end, uris, unique);
+        ResponseEntity<List<ViewStatsDTO>> response = statsClient.getStats(start, end, uris, unique);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -165,12 +167,11 @@ class StatsClientTest {
     }
 
     @Test
-    void saveHit_WhenConnectionRefused_ShouldThrowException() {
-        try {
-            mockWebServer.shutdown();
-        } catch (IOException ignored) {
-        }
+    void saveHit_WhenConnectionRefused_ShouldThrowException() throws IOException {
         EndpointHitDTO hit = new EndpointHitDTO(null, "app", "/uri", "1.1.1.1", LocalDateTime.now());
-        assertThrows(Exception.class, () -> statsClient.saveHit(hit));
+            mockWebServer.shutdown();
+
+        ResponseEntity<Object> response = statsClient.saveHit(hit);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
     }
 }
