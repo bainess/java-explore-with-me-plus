@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
 import ru.practicum.explorewithme.service.location.dal.LocationRepository;
 import ru.practicum.explorewithme.service.location.dto.LocationDto;
@@ -34,6 +35,9 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public LocationDto updateLocation(Long locId, UpdateLocationRequest request) {
         Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId +" не найдена"));
+        if (locationRepository.existsByNameIgnoreCaseAndIdNot(location.getName(), locId)) {
+            throw new ConflictException("Название для локации " + location.getName() + " уже существует");
+        }
         LocationMapper.updateEntity(request, location);
         location = locationRepository.save(location);
         return LocationMapper.toDto(location);

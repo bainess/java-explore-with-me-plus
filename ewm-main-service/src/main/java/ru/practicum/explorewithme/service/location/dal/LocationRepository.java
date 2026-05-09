@@ -8,5 +8,5 @@ import java.util.Optional;
 public interface LocationRepository extends JpaRepository<Location, Long> {
     boolean existsByName(String name);
 
-    Optional<Location> findByNameIgnoreCaseAndIdNot(String name, Long id);
+    Boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
 }
