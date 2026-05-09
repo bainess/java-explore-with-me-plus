@@ -20,6 +20,8 @@ public class AdminLocationController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public LocationDto saveLocation(@RequestBody NewLocationRequest request) {
+        log.info("Запрос на сохранение новой локации lat - {}, lon - {}, rad - {}",
+                request.getLat(), request.getLon(), request.getRadius());
         return locationService.createLocation(request);
     }
 
@@ -27,6 +29,10 @@ public class AdminLocationController {
     @ResponseStatus(HttpStatus.OK)
     public LocationDto updateLocation(@PathVariable(name = "locId") Long lockId,
                                       @RequestBody UpdateLocationRequest request) {
+        log.info("Запрос на обновление новой локации lat - {}, lon - {}, rad - {}",
+                request.getLat(), request.getLon(), request.getRadius());
         return locationService.updateLocation(lockId, request);
     }
+
+
 }
