@@ -10,6 +10,8 @@ import ru.practicum.explorewithme.service.location.dto.NewLocationRequest;
 import ru.practicum.explorewithme.service.location.dto.UpdateLocationRequest;
 import ru.practicum.explorewithme.service.location.service.LocationService;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -46,6 +48,13 @@ public class AdminLocationController {
     public LocationDto getLocation(@PathVariable(name = "locId") Long locId) {
         log.info("Запрос на получение локации id {}", locId);
         return locationService.getLocationById(locId);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<LocationDto> getAllLocations(@RequestParam(name = "from") Integer from,
+                                             @RequestParam(name = "size") Integer size) {
+        return locationService.getAllLocations(from, size);
     }
 
 }
