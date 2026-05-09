@@ -1,6 +1,9 @@
 package ru.practicum.explorewithme.service.location.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
@@ -44,12 +47,15 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public LocationDto getLocationById(Long locId) {
-        return null;
+        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId +" не найдена"));
+        return LocationMapper.toDto(location);
     }
 
     @Override
     public List<LocationDto> getAllLocations(int from, int size) {
-        return List.of();
+        Pageable pageable = PageRequest.of(from/size, size);
+        Page<Location> page = locationRepository.findAll(pageable);
+        return page.getContent().stream().map(LocationMapper::toDto).toList();
     }
 
 }
