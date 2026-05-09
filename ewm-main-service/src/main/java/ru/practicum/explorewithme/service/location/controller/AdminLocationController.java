@@ -29,10 +29,16 @@ public class AdminLocationController {
     @ResponseStatus(HttpStatus.OK)
     public LocationDto updateLocation(@PathVariable(name = "locId") Long lockId,
                                       @RequestBody UpdateLocationRequest request) {
-        log.info("Запрос на обновление новой локации lat - {}, lon - {}, rad - {}",
+        log.info("Запрос на обновление локации lat - {}, lon - {}, rad - {}",
                 request.getLat(), request.getLon(), request.getRadius());
         return locationService.updateLocation(lockId, request);
     }
 
+    @DeleteMapping("/{locaId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void removeLocation(@PathVariable(name = "locId") Long locId) {
+        log.info("Запрос на удаление локации id {}", locId);
+        locationService.deleteLocation(locId);
+    }
 
 }

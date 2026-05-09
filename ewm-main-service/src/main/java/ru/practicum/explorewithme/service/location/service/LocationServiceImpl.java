@@ -38,7 +38,8 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public void deleteLocation(Long locId) {
-
+        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId +" не найдена"));
+        locationRepository.delete(location);
     }
 
     @Override
