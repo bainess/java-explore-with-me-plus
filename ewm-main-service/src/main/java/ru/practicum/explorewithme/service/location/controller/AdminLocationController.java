@@ -27,18 +27,25 @@ public class AdminLocationController {
 
     @PatchMapping("/{locId}")
     @ResponseStatus(HttpStatus.OK)
-    public LocationDto updateLocation(@PathVariable(name = "locId") Long lockId,
+    public LocationDto updateLocation(@PathVariable(name = "locId") Long locId,
                                       @RequestBody UpdateLocationRequest request) {
         log.info("Запрос на обновление локации lat - {}, lon - {}, rad - {}",
                 request.getLat(), request.getLon(), request.getRadius());
-        return locationService.updateLocation(lockId, request);
+        return locationService.updateLocation(locId, request);
     }
 
-    @DeleteMapping("/{locaId}")
+    @DeleteMapping("/{locId}")
     @ResponseStatus(HttpStatus.OK)
     public void removeLocation(@PathVariable(name = "locId") Long locId) {
         log.info("Запрос на удаление локации id {}", locId);
         locationService.deleteLocation(locId);
+    }
+
+    @GetMapping("/{locId}")
+    @ResponseStatus(HttpStatus.OK)
+    public LocationDto getLocation(@PathVariable(name = "locId") Long locId) {
+        log.info("Запрос на получение локации id {}", locId);
+        return locationService.getLocationById(locId);
     }
 
 }
