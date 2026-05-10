@@ -17,15 +17,14 @@ public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPre
 
     int countByCategoryId(Long catId);
 
-    @Query(value =
-            "SELECT e.* FROM events e " +
-                    "JOIN admin_locations l ON l.id = :locId " +
-                    "WHERE distance(e.lat, e.lon, l.lat, l.lon) <= l.radius " +
-                    "AND e.state = 'PUBLISHED'",
+    @Query(value = "SELECT e.* FROM events e " +
+            "JOIN admin_locations l ON l.id = :locId " +
+            "WHERE distance(e.lat, e.lon, l.lat, l.lon) <= l.radius " +
+            "AND e.state = 'PUBLISHED'",
             countQuery = "SELECT count(*) FROM events e " +
                     "JOIN admin_locations l ON l.id = :locId " +
                     "WHERE distance(e.lat, e.lon, l.lat, l.lon) <= l.radius " +
                     "AND e.state = 'PUBLISHED'",
             nativeQuery = true)
-    Page<Event> findByLocation(@Param("locId") Long locId, Pageable pageable);
+    Page<Event> findEventsByLocation(@Param("locId") Long locId, Pageable pageable);
 }

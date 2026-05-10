@@ -18,10 +18,12 @@ import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.enums.UserEventStateAction;
 import ru.practicum.explorewithme.service.event.mapper.EventMapper;
 import ru.practicum.explorewithme.service.event.model.Event;
+import ru.practicum.explorewithme.service.event.model.LocationEventSearch;
 import ru.practicum.explorewithme.service.event.service.predicate.EventPredicate;
 import ru.practicum.explorewithme.service.exception.BadRequestException;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
+import ru.practicum.explorewithme.service.location.dal.LocationRepository;
 import ru.practicum.explorewithme.service.request.dal.EventRequestRepository;
 import ru.practicum.explorewithme.service.request.dto.ConfirmedRequestsCount;
 import ru.practicum.explorewithme.service.request.enums.ParticipationRequestStatus;
@@ -48,6 +50,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final EventRequestRepository requestRepository;
     private final StatsClient statsClient;
+    private final LocationRepository locationRepository;
 
     @Override
     @Transactional
@@ -177,6 +180,11 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toFullDto(event, confirmed, 0L);
     }
 
+    @Override
+    public List<EventShortDto> findEventsByLocation(LocationEventSearch params) {
+        return List.of();
+    }
+
     private Map<Long, Long> getConfirmedRequests(List<Event> events) {
         if (events.isEmpty()) return Collections.emptyMap();
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
@@ -240,4 +248,6 @@ public class EventServiceImpl implements EventService {
         return views;
 
     }
+
+
 }

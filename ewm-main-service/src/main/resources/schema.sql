@@ -53,4 +53,13 @@ CREATE TABLE IF NOT EXISTS admin_locations (
     CONSTRAINT uq_admin_location_name UNIQUE (name)
 );
 
+CREATE OR REPLACE FUNCTION distance(lat1 float, lon1 float, lat2 float, lon2 float)
+RETURNS float AS $$
+    SELECT 6371 * acos(
+        cos(radians(lat1)) * cos(radians(lat2)) *
+        cos(radians(lon2) - radians(lon1)) +
+        sin(radians(lat1)) * sin(radians(lat2))
+    );
+$$ LANGUAGE sql;
+
 CREATE ALIAS IF NOT EXISTS distance FOR "ru.practicum.explorewithme.service.util.H2Functions.distance";
