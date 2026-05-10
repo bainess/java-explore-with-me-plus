@@ -1,6 +1,5 @@
 package ru.practicum.explorewithme.service.location.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -107,7 +106,7 @@ public class LocationControllerTest {
     }
 
     @Test
-    void shouldDeleteLocation() throws Exception{
+    void shouldDeleteLocation() throws Exception {
         doNothing().when(locationService).deleteLocation(locId);
 
         mockMvc.perform(delete("/admin/locations/{locId}", locId))
@@ -118,7 +117,7 @@ public class LocationControllerTest {
 
     @Test
     void shouldThrowExceptionWhenLocationNotFound() throws Exception {
-        doThrow(new NotFoundException("Локация" + locId +" не найдена"))
+        doThrow(new NotFoundException("Локация" + locId + " не найдена"))
                 .when(locationService).deleteLocation(locId);
 
         mockMvc.perform(delete("/admin/locations/{lockId}", locId))

@@ -38,7 +38,7 @@ public class LocationServiceImpl implements LocationService {
     @Transactional
     @Override
     public LocationDto updateLocation(Long locId, UpdateLocationRequest request) {
-        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId +" не найдена"));
+        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId + " не найдена"));
         if (locationRepository.existsByNameIgnoreCaseAndIdNot(location.getName(), locId)) {
             throw new ConflictException("Название для локации " + location.getName() + " уже существует");
         }
@@ -49,19 +49,19 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public void deleteLocation(Long locId) {
-        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId +" не найдена"));
+        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId + " не найдена"));
         locationRepository.delete(location);
     }
 
     @Override
     public LocationDto getLocationById(Long locId) {
-        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId +" не найдена"));
+        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId + " не найдена"));
         return LocationMapper.toDto(location);
     }
 
     @Override
     public List<LocationDto> getAllLocations(int from, int size) {
-        Pageable pageable = PageRequest.of(from/size, size, Sort.by("id").ascending());
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").ascending());
         Page<Location> page = locationRepository.findAll(pageable);
         return page.getContent().stream().map(LocationMapper::toDto).toList();
     }

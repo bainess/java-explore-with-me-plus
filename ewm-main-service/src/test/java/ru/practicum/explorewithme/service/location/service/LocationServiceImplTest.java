@@ -6,7 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
 import ru.practicum.explorewithme.service.location.dal.LocationRepository;
@@ -62,7 +64,7 @@ public class LocationServiceImplTest {
                 .name("Saint Petersburg")
                 .id(2L)
                 .lat(59.9375f)
-                .lon(30/3350f)
+                .lon(30 / 3350f)
                 .radius(5.00f)
                 .build();
 
