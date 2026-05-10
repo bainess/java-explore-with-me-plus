@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.explorewithme.service.event.dto.EventFullDto;
 import ru.practicum.explorewithme.service.event.service.EventService;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
 import ru.practicum.explorewithme.service.location.dto.LocationDto;
@@ -16,7 +17,11 @@ import ru.practicum.explorewithme.service.location.dto.NewLocationRequest;
 import ru.practicum.explorewithme.service.location.dto.UpdateLocationRequest;
 import ru.practicum.explorewithme.service.location.service.LocationService;
 
+import java.util.Collections;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -127,5 +132,47 @@ public class LocationControllerTest {
         mockMvc.perform(delete("/admin/locations/{lockId}", locId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.reason").value("Требуемый объект не найден"));
+    }
+
+    @Test
+    void shouldReturnEventList_whenLocationExists() throws Exception {
+        EventFullDto dto = EventFullDto.builder().id(10L).title("Test Event").build();
+        when(eventService.getEventsByLocation(eq(locId), eq(0), eq(10))).thenReturn(List.of(dto));
+
+        mockMvc.perform(get("/admin/locations/{locId}/events", locId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(10L))
+                .andExpect(jsonPath("$[0].title").value("Test Event"));
+
+        verify(eventService).getEventsByLocation(locId, 0, 10);
+    }
+
+    @Test
+    void shouldReturn404_whenLocationNotFound() throws Exception {
+        when(eventService.getEventsByLocation(eq(locId), eq(0), eq(10)))
+                .thenThrow(new NotFoundException("Локация " + locId + " не найдена"));
+
+        mockMvc.perform(get("/admin/locations/{locId}/events", locId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.reason").value("Требуемый объект не найден"));
+    }
+
+    @Test
+    void shouldReturn200WithEmptyList_whenNoEvents() throws Exception {
+        when(eventService.getEventsByLocation(eq(locId), eq(0), eq(10))).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/admin/locations/{locId}/events", locId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void shouldUseDefaultPagination_whenFromAndSizeOmitted() throws Exception {
+        when(eventService.getEventsByLocation(any(), eq(0), eq(10))).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/admin/locations/{locId}/events", locId))
+                .andExpect(status().isOk());
+
+        verify(eventService).getEventsByLocation(locId, 0, 10);
     }
 }
