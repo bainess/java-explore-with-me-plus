@@ -88,5 +88,3 @@ BEGIN
 END;
 '
 LANGUAGE PLPGSQL;
-
-CREATE ALIAS IF NOT EXISTS distance FOR "ru.practicum.explorewithme.service.util.H2Functions.distance";
