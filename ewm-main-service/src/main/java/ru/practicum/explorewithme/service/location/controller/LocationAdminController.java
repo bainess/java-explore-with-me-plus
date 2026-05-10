@@ -3,7 +3,6 @@ package ru.practicum.explorewithme.service.location.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.explorewithme.service.location.dto.LocationDto;
 import ru.practicum.explorewithme.service.location.dto.NewLocationRequest;
@@ -12,11 +11,11 @@ import ru.practicum.explorewithme.service.location.service.LocationService;
 
 import java.util.List;
 
-@Service
+@RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/admin/location")
-public class AdminLocationController {
+@RequestMapping("/admin/locations")
+public class LocationAdminController {
     private final LocationService locationService;
 
     @PostMapping
@@ -37,7 +36,7 @@ public class AdminLocationController {
     }
 
     @DeleteMapping("/{locId}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeLocation(@PathVariable(name = "locId") Long locId) {
         log.info("Запрос на удаление локации id {}", locId);
         locationService.deleteLocation(locId);
