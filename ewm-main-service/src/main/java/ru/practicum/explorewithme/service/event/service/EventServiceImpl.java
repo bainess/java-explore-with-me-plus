@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -181,7 +182,59 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventFullDto> getEventsByLocation(Long locId, int from, int size) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        locationRepository.findById(locId)
+                .orElseThrow(() -> new NotFoundException("Локация " + locId + " не найдена"));
+
+        Pageable pageable = PageRequest.of(from / size, size);
+        Page<Event> page = eventRepository.findEventsByLocation(locId, pageable);
+
+        if (page.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Event> events = page.getContent();
+        Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
+        Map<Long, Long> views = getViewsMap(events);
+
+        return events.stream()
+                .map(e -> EventMapper.toFullDto(e,
+                        confirmedRequests.getOrDefault(e.getId(), 0L),
+                        views.getOrDefault(e.getId(), 0L)))
+                .collect(Collectors.toList());
+    }
+
+    private Map<Long, Long> getViewsMap(List<Event> events) {
+        if (events.isEmpty()) return Collections.emptyMap();
+
+        List<String> uris = events.stream()
+                .map(e -> "/events/" + e.getId())
+                .collect(Collectors.toList());
+
+        LocalDateTime start = events.stream()
+                .map(Event::getCreatedOn)
+                .min(LocalDateTime::compareTo)
+                .orElse(LocalDateTime.now().minusYears(10));
+
+        Map<Long, Long> viewsMap = new HashMap<>();
+        try {
+            ResponseEntity<?> response = statsClient.getStats(start, LocalDateTime.now(), uris, true);
+            Object body = response.getBody();
+            if (body instanceof List<?> statsList) {
+                for (Object item : statsList) {
+                    if (item instanceof ViewStatsDTO viewStats) {
+                        String uri = viewStats.getUri();
+                        String idStr = uri.substring(uri.lastIndexOf('/') + 1);
+                        try {
+                            viewsMap.put(Long.parseLong(idStr), viewStats.getHits());
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Ошибка при получении статистики для событий: {}", e.getMessage());
+        }
+        return viewsMap;
     }
 
     private Map<Long, Long> getConfirmedRequests(List<Event> events) {
