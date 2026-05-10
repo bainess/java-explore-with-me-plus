@@ -18,7 +18,6 @@ import ru.practicum.explorewithme.service.event.enums.EventState;
 import ru.practicum.explorewithme.service.event.enums.UserEventStateAction;
 import ru.practicum.explorewithme.service.event.mapper.EventMapper;
 import ru.practicum.explorewithme.service.event.model.Event;
-import ru.practicum.explorewithme.service.event.model.LocationEventSearch;
 import ru.practicum.explorewithme.service.event.service.predicate.EventPredicate;
 import ru.practicum.explorewithme.service.exception.BadRequestException;
 import ru.practicum.explorewithme.service.exception.ConflictException;
@@ -181,8 +180,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> findEventsByLocation(LocationEventSearch params) {
-        return List.of();
+    public List<EventFullDto> getEventsByLocation(Long locId, int from, int size) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     private Map<Long, Long> getConfirmedRequests(List<Event> events) {

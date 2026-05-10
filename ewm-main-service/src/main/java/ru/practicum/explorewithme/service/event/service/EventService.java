@@ -1,7 +1,6 @@
 package ru.practicum.explorewithme.service.event.service;
 
 import ru.practicum.explorewithme.service.event.dto.*;
-import ru.practicum.explorewithme.service.event.model.LocationEventSearch;
 
 import java.util.List;
 
@@ -22,5 +21,5 @@ public interface EventService {
 
     EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest request);
 
-    List<EventShortDto> findEventsByLocation(LocationEventSearch params);
+    List<EventFullDto> getEventsByLocation(Long locId, int from, int size);
 }
