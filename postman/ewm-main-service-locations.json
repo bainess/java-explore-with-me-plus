@@ -1126,7 +1126,7 @@
                   "    url: pm.variables.get('baseUrl') + '/admin/locations',",
                   "    method: 'POST',",
                   "    header: { 'Content-Type': 'application/json' },",
-                  "    body: { mode: 'raw', raw: JSON.stringify({ name: 'TinyLoc' + Date.now() + Math.random(), lat: 55.7522, lon: 37.6156, radius: 0.1 }) }",
+                  "    body: { mode: 'raw', raw: JSON.stringify({ name: 'TinyLoc' + Date.now() + Math.random(), lat: -33.8688, lon: 151.2093, radius: 0.1 }) }",
                   "}, (err, res) => {",
                   "    if (res.code === 201) pm.environment.set('tinyLocId', res.json().id);",
                   "});"
