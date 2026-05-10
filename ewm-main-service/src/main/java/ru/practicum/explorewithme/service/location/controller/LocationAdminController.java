@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.explorewithme.service.event.dto.EventFullDto;
+import ru.practicum.explorewithme.service.event.service.EventService;
 import ru.practicum.explorewithme.service.location.dto.LocationDto;
 import ru.practicum.explorewithme.service.location.dto.NewLocationRequest;
 import ru.practicum.explorewithme.service.location.dto.UpdateLocationRequest;
@@ -17,6 +19,7 @@ import java.util.List;
 @RequestMapping("/admin/locations")
 public class LocationAdminController {
     private final LocationService locationService;
+    private final EventService eventService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -51,9 +54,18 @@ public class LocationAdminController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<LocationDto> getAllLocations(@RequestParam(name = "from") Integer from,
-                                             @RequestParam(name = "size") Integer size) {
+    public List<LocationDto> getAllLocations(@RequestParam(name = "from", defaultValue = "0") Integer from,
+                                             @RequestParam(name = "size", defaultValue = "10") Integer size) {
         return locationService.getAllLocations(from, size);
+    }
+
+    @GetMapping("/{locId}/events")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EventFullDto> getEventsByLocation(@PathVariable(name = "locId") Long locId,
+                                                  @RequestParam(defaultValue = "0") int from,
+                                                  @RequestParam(defaultValue = "10") int size) {
+        log.info("Запрос событий в радиусе локации id={}, from={}, size={}", locId, from, size);
+        return eventService.getEventsByLocation(locId, from, size);
     }
 
 }

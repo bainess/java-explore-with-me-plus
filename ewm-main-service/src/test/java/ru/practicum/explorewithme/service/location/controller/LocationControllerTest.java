@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.explorewithme.service.event.service.EventService;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
 import ru.practicum.explorewithme.service.location.dto.LocationDto;
 import ru.practicum.explorewithme.service.location.dto.NewLocationRequest;
@@ -32,6 +33,9 @@ public class LocationControllerTest {
 
     @MockBean
     private LocationService locationService;
+
+    @MockBean
+    private EventService eventService;
 
     private NewLocationRequest request;
     private LocationDto location;
