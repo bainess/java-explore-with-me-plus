@@ -126,7 +126,7 @@ public class LocationServiceImplTest {
 
         assertThatThrownBy(() -> locationService.updateLocation(locId, updateRequest))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("Локация" + locId + " не найдена");
+                .hasMessageContaining("Локация " + locId + " не найдена");
 
         verify(locationRepository, never()).save(any());
     }
@@ -142,7 +142,7 @@ public class LocationServiceImplTest {
 
         assertThatThrownBy(() -> locationService.updateLocation(locId, updateRequest))
                 .isInstanceOf(ConflictException.class)
-                .hasMessageContaining("Название для локации " + request.getName() + " уже существует");
+                .hasMessageContaining("Название для локации " + updateRequest.getName() + " уже существует");
 
         verify(locationRepository, never()).save(any());
     }

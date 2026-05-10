@@ -38,24 +38,25 @@ public class LocationServiceImpl implements LocationService {
     @Transactional
     @Override
     public LocationDto updateLocation(Long locId, UpdateLocationRequest request) {
-        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId + " не найдена"));
-        if (locationRepository.existsByNameIgnoreCaseAndIdNot(location.getName(), locId)) {
-            throw new ConflictException("Название для локации " + location.getName() + " уже существует");
+        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация " + locId + " не найдена"));
+        if (request.getName() != null && locationRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), locId)) {
+            throw new ConflictException("Название для локации " + request.getName() + " уже существует");
         }
         LocationMapper.updateEntity(request, location);
         location = locationRepository.save(location);
         return LocationMapper.toDto(location);
     }
 
+    @Transactional
     @Override
     public void deleteLocation(Long locId) {
-        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId + " не найдена"));
+        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация " + locId + " не найдена"));
         locationRepository.delete(location);
     }
 
     @Override
     public LocationDto getLocationById(Long locId) {
-        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация" + locId + " не найдена"));
+        Location location = locationRepository.findById(locId).orElseThrow(() -> new NotFoundException("Локация " + locId + " не найдена"));
         return LocationMapper.toDto(location);
     }
 
