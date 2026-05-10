@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.explorewithme.service.exception.ConflictException;
@@ -26,6 +27,9 @@ public class LocationServiceImpl implements LocationService {
     @Transactional
     @Override
     public LocationDto createLocation(NewLocationRequest request) {
+        if (locationRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new ConflictException("Локация с именем " + request.getName() + "уже существует");
+        }
         Location location = LocationMapper.toEntity(request);
         location = locationRepository.save(location);
         return LocationMapper.toDto(location);
@@ -57,7 +61,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public List<LocationDto> getAllLocations(int from, int size) {
-        Pageable pageable = PageRequest.of(from/size, size);
+        Pageable pageable = PageRequest.of(from/size, size, Sort.by("id").ascending());
         Page<Location> page = locationRepository.findAll(pageable);
         return page.getContent().stream().map(LocationMapper::toDto).toList();
     }
