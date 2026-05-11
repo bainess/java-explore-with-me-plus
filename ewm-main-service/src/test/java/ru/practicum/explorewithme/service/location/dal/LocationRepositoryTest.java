@@ -4,39 +4,39 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import ru.practicum.explorewithme.service.location.model.AdminLocation;
+import ru.practicum.explorewithme.service.location.model.Location;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-class AdminLocationRepositoryTest {
+class LocationRepositoryTest {
 
     @Autowired
     private TestEntityManager em;
 
     @Autowired
-    private AdminLocationRepository repository;
+    private LocationRepository repository;
 
     @Test
     void saveAndFind() {
-        AdminLocation loc = AdminLocation.builder()
+        Location loc = Location.builder()
                 .name("Парк Горького")
                 .lat(55.72f)
                 .lon(37.60f)
                 .radius(1.5f)
                 .build();
 
-        AdminLocation saved = repository.save(loc);
+        Location saved = repository.save(loc);
         assertThat(saved.getId()).isNotNull();
 
-        AdminLocation found = repository.findById(saved.getId()).orElse(null);
+        Location found = repository.findById(saved.getId()).orElse(null);
         assertThat(found).isNotNull();
         assertThat(found.getName()).isEqualTo("Парк Горького");
     }
 
     @Test
     void existsByName() {
-        AdminLocation loc = AdminLocation.builder()
+        Location loc = Location.builder()
                 .name("ВДНХ")
                 .lat(55.82f)
                 .lon(37.63f)
