@@ -1,6 +1,7 @@
 package ru.practicum.explorewithme.service.util;
 
 public class H2Functions {
+
     private static final double DEG_TO_RAD = Math.PI / 180;
     private static final double RAD_TO_DEG = 180 / Math.PI;
     private static final double NAUTICAL_MILE_TO_KM = 1.8524;
