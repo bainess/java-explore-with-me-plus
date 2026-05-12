@@ -12,10 +12,10 @@ public class H2Functions {
         if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return 0;
         if (lat1.equals(lat2) && lon1.equals(lon2)) return 0;
 
-        double radLat1 = Math.PI * lat1 / DEG_TO_RAD;
-        double radLat2 = Math.PI * lat2 / DEG_TO_RAD;
+        double radLat1 = lat1 * DEG_TO_RAD;
+        double radLat2 = lat2 * DEG_TO_RAD;
         double theta = lon1 - lon2;
-        double radTheta = Math.PI * theta / DEG_TO_RAD;
+        double radTheta = theta * DEG_TO_RAD;
 
         double dist = Math.sin(radLat1) * Math.sin(radLat2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.cos(radTheta);
         if (dist > MAX_COS_VALUE) dist = MAX_COS_VALUE;
