@@ -216,23 +216,13 @@ public class EventServiceImpl implements EventService {
                 .orElse(LocalDateTime.now().minusYears(10));
 
         Map<Long, Long> viewsMap = new HashMap<>();
+        long views = 0;
         try {
-            ResponseEntity<?> response = statsClient.getStats(start, LocalDateTime.now(), uris, true);
-            Object body = response.getBody();
-            if (body instanceof List<?> statsList) {
-                for (Object item : statsList) {
-                    if (item instanceof ViewStatsDTO viewStats) {
-                        String uri = viewStats.getUri();
-                        String idStr = uri.substring(uri.lastIndexOf('/') + 1);
-                        try {
-                            viewsMap.put(Long.parseLong(idStr), viewStats.getHits());
-                        } catch (NumberFormatException ignored) {
-                        }
-                    }
-                }
-            }
+            ResponseEntity<List<ViewStatsDTO>> response = statsClient.getStats(start, LocalDateTime.now(), uris, true);
+            List<ViewStatsDTO> stats = response.getBody();
+            views = (stats == null) ? 0 : stats.getFirst().getHits();
         } catch (Exception e) {
-            log.warn("Ошибка при получении статистики для событий: {}", e.getMessage());
+            log.error("Ошибка при получении статистики для событий: {}", e.getMessage());
         }
         return viewsMap;
     }
@@ -286,20 +276,13 @@ public class EventServiceImpl implements EventService {
         LocalDateTime dateTime = LocalDateTime.parse(event.getCreatedOn(), FORMATTER);
         long views = 0;
         try {
-            ResponseEntity<?> response = statsClient.getStats(dateTime, LocalDateTime.now(), List.of("/events/" + eventId), true);
-            Object body = response.getBody();
-            if (body instanceof List<?> statsList && !statsList.isEmpty()) {
-                Object first = statsList.getFirst();
-                if (first instanceof ViewStatsDTO viewStats) {
-                    views = viewStats.getHits();
-                }
-            }
+            ResponseEntity<List<ViewStatsDTO>> response = statsClient.getStats(dateTime, LocalDateTime.now(), List.of("/events/" + eventId), true);
+            List<ViewStatsDTO> stats = response.getBody();
+            views = (stats == null) ? 0 : stats.getFirst().getHits();
         } catch (Exception e) {
-            log.warn("Ошибка при получении статистики для события {}: {}", eventId, e.getMessage());
+            log.error("Ошибка при получении статистики для события {}: {}", eventId, e.getMessage());
         }
         return views;
 
     }
-
-
 }
