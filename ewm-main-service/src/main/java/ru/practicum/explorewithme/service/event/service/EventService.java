@@ -20,4 +20,6 @@ public interface EventService {
     List<EventFullDto> getEventsByAdmin(EventSearchParamsAdmin params);
 
     EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest request);
+
+    List<EventFullDto> getEventsByLocation(Long locId, int from, int size);
 }

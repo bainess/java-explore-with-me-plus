@@ -1,0 +1,1467 @@
+{
+  "info": {
+    "_postman_id": "2f684936-7c47-4bd5-b83c-f7706592c9b4",
+    "name": "ExploreWithMe - Locations & Events",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50755084",
+    "_collection_link": "https://go.postman.co/collection/50755084-2f684936-7c47-4bd5-b83c-f7706592c9b4?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Locations CRUD",
+      "item": [
+        {
+          "name": "Update location",
+          "item": [
+            {
+              "name": "Update success",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const suffix = Date.now() + Math.random();",
+                      "const initName = 'ToUpdate' + suffix;",
+                      "const updatedName = 'Updated Name ' + suffix;",
+                      "pm.environment.set('updatedName', updatedName);",
+                      "pm.sendRequest({",
+                      "    url: pm.variables.get('baseUrl') + pm.variables.get('adminPath'),",
+                      "    method: 'POST',",
+                      "    header: { 'Content-Type': 'application/json' },",
+                      "    body: { mode: 'raw', raw: JSON.stringify({ name: initName, lat: 59.9343, lon: 30.3351, radius: 1.5 }) }",
+                      "}, (err, createRes) => {",
+                      "    if (createRes.code === 201) {",
+                      "        pm.environment.set('updateLocId', createRes.json().id);",
+                      "    } else {",
+                      "        console.error('Create for update failed: ' + createRes.code);",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "if (pm.response.code === 200) {",
+                      "    const body = pm.response.json();",
+                      "    pm.test('Name updated', () => pm.expect(body.name).to.eql(pm.environment.get('updatedName')));",
+                      "    pm.test('Radius updated', () => pm.expect(body.radius).to.eql(3.0));",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"name\":\"{{updatedName}}\",\"radius\":3.0}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations/{{updateLocId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "locations",
+                    "{{updateLocId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update conflict - duplicate name",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const suffix = Date.now() + Math.random();",
+                      "const firstName = 'First' + suffix;",
+                      "const secondName = 'Second' + suffix;",
+                      "const baseUrl = pm.variables.get('baseUrl');",
+                      "const adminPath = pm.variables.get('adminPath');",
+                      "pm.sendRequest({ url: baseUrl + adminPath, method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: firstName, lat: 59.93, lon: 30.33, radius: 1.0 }) } }, (err1, res1) => {",
+                      "    pm.sendRequest({ url: baseUrl + adminPath, method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: secondName, lat: 59.93, lon: 30.33, radius: 1.0 }) } }, (err2, res2) => {",
+                      "        if (res1.code === 201 && res2.code === 201) {",
+                      "            pm.environment.set('dupUpdateName', firstName);",
+                      "            pm.environment.set('secondLocId', res2.json().id);",
+                      "        } else {",
+                      "            console.error('Failed to create locations: ' + res1.code + ', ' + res2.code);",
+                      "        }",
+                      "    });",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 409', () => pm.response.to.have.status(409));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"name\":\"{{dupUpdateName}}\"}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations/{{secondLocId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "locations",
+                    "{{secondLocId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update non-existing - 404",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"name\":\"doesntmatter\"}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations/9999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "locations",
+                    "9999"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Delete location",
+          "item": [
+            {
+              "name": "Create temp location for delete",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "pm.environment.set('deleteName', 'ToDelete' + Date.now() + Math.random());"
+                    ],
+                    "type": "text/javascript"
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    pm.environment.set('deleteLocId', pm.response.json().id);",
+                      "}",
+                      "pm.test('Status 201', () => pm.response.to.have.status(201));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"name\":\"{{deleteName}}\",\"lat\":0,\"lon\":0,\"radius\":10}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "locations"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete success - 204",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const suffix = Date.now() + Math.random();\r",
+                      "const initName = 'ToDelete' + suffix;\r",
+                      "pm.sendRequest({\r",
+                      "    url: pm.variables.get('baseUrl') + pm.variables.get('adminPath'),\r",
+                      "    method: 'POST',\r",
+                      "    header: { 'Content-Type': 'application/json' },\r",
+                      "    body: { mode: 'raw', raw: JSON.stringify({ name: initName, lat: 59.9343, lon: 30.3351, radius: 1.5 }) }\r",
+                      "}, (err, createRes) => {\r",
+                      "    if (createRes.code === 201) {\r",
+                      "        pm.environment.set('deleteLocId', createRes.json().id);\r",
+                      "    } else {\r",
+                      "        console.error('Create for delete failed: ' + createRes.code);\r",
+                      "    }\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations/{{deleteLocId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "locations",
+                    "{{deleteLocId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete again - 404",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const suffix = Date.now() + Math.random();\r",
+                      "const initName = 'ToDelete' + suffix;\r",
+                      "const baseUrl = pm.variables.get('baseUrl');\r",
+                      "const adminPath = pm.variables.get('adminPath');\r",
+                      "\r",
+                      "pm.sendRequest({\r",
+                      "    url: baseUrl + adminPath,\r",
+                      "    method: 'POST',\r",
+                      "    header: { 'Content-Type': 'application/json' },\r",
+                      "    body: { mode: 'raw', raw: JSON.stringify({ name: initName, lat: 59.9343, lon: 30.3351, radius: 1.5 }) }\r",
+                      "}, (err, createRes) => {\r",
+                      "    if (createRes.code === 201) {\r",
+                      "        const locId = createRes.json().id;\r",
+                      "        // Удаляем только что созданную локацию\r",
+                      "        pm.sendRequest({\r",
+                      "            url: baseUrl + adminPath + '/' + locId,\r",
+                      "            method: 'DELETE'\r",
+                      "        }, (err2, deleteRes) => {\r",
+                      "            // После успешного удаления сохраняем id (уже удалённой) в переменную\r",
+                      "            pm.environment.set('deleteLocId', locId);\r",
+                      "            // Теперь основной запрос может выполняться — он получит 404\r",
+                      "        });\r",
+                      "    } else {\r",
+                      "        console.error('Create for delete failed: ' + createRes.code);\r",
+                      "    }\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations/{{deleteLocId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "locations",
+                    "{{deleteLocId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete non-existing - 404",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations/9999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "locations",
+                    "9999"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Get locations",
+          "item": [
+            {
+              "name": "Get all - default pagination",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "if (pm.response.code === 200) {",
+                      "    pm.test('Array returned', () => pm.expect(pm.response.json()).to.be.an('array'));",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations?from=0&size=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "locations"
+                  ],
+                  "query": [
+                    {
+                      "key": "from",
+                      "value": "0"
+                    },
+                    {
+                      "key": "size",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get by ID - success",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "const name = 'ForGet' + Date.now() + Math.random();",
+                      "pm.sendRequest({",
+                      "    url: pm.variables.get('baseUrl') + pm.variables.get('adminPath'),",
+                      "    method: 'POST',",
+                      "    header: { 'Content-Type': 'application/json' },",
+                      "    body: { mode: 'raw', raw: JSON.stringify({ name, lat: 55.0, lon: 37.0, radius: 1.0 }) }",
+                      "}, (err, res) => {",
+                      "    if (res.code === 201) pm.environment.set('getLocId', res.json().id);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                      "if (pm.response.code === 200) {",
+                      "    pm.test('Has id', () => pm.expect(pm.response.json().id).to.be.a('number'));",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations/{{getLocId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "locations",
+                    "{{getLocId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get by ID - not found",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/locations/9999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "locations",
+                    "9999"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Create location - success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    pm.test('Has id', () => pm.expect(body.id).to.be.a('number'));",
+                  "    pm.test('Name includes expected', () => pm.expect(body.name).to.include('Pushkin Museum'));",
+                  "    pm.test('Lat correct', () => pm.expect(body.lat).to.be.closeTo(55.7412, 0.01));",
+                  "    pm.test('Lon correct', () => pm.expect(body.lon).to.be.closeTo(37.6059, 0.01));",
+                  "    pm.test('Radius correct', () => pm.expect(body.radius).to.eql(2.0));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Pushkin Museum {{$randomInt}}\",\"lat\":55.7412,\"lon\":37.6059,\"radius\":2.0}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create duplicate - 409",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const dupName = 'DupLoc' + Date.now() + Math.random();",
+                  "pm.environment.set('dupName', dupName);",
+                  "pm.sendRequest({",
+                  "    url: pm.variables.get('baseUrl') + pm.variables.get('adminPath'),",
+                  "    method: 'POST',",
+                  "    header: { 'Content-Type': 'application/json' },",
+                  "    body: { mode: 'raw', raw: JSON.stringify({ name: dupName, lat: 55.7412, lon: 37.6059, radius: 2.0 }) }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"{{dupName}}\",\"lat\":55.7412,\"lon\":37.6059,\"radius\":2.0}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation - empty name",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "(async () => {",
+                  "    const baseUrl = pm.variables.get('baseUrl');",
+                  "    const adminPath = pm.variables.get('adminPath');",
+                  "    const listRes = await pm.sendRequest({ url: baseUrl + adminPath + '?from=0&size=1000', method: 'GET' });",
+                  "    if (listRes.code === 200) {",
+                  "        const empty = listRes.json().find(l => l.name === '');",
+                  "        if (empty) {",
+                  "            await pm.sendRequest({ url: baseUrl + adminPath + '/' + empty.id, method: 'DELETE' });",
+                  "        }",
+                  "    }",
+                  "})();"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"\",\"lat\":55.75,\"lon\":37.61,\"radius\":1.0}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation - name too long",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set('longName', 'A'.repeat(121) + Date.now() + Math.random());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"{{longName}}\",\"lat\":55.75,\"lon\":37.61,\"radius\":1.0}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation - lat out of range",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set('uniqName', 'lat_out_' + Date.now() + Math.random());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"{{uniqName}}\",\"lat\":91,\"lon\":37.61,\"radius\":1.0}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation - lon out of range",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set('uniqName', 'lon_out_' + Date.now() + Math.random());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"{{uniqName}}\",\"lat\":55.75,\"lon\":-181,\"radius\":1.0}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation - radius zero",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set('uniqName', 'rad_zero_' + Date.now() + Math.random());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"{{uniqName}}\",\"lat\":55.75,\"lon\":37.61,\"radius\":0}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validation - radius negative",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set('uniqName', 'rad_neg_' + Date.now() + Math.random());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"{{uniqName}}\",\"lat\":55.75,\"lon\":37.61,\"radius\":-1}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Search events by location",
+      "item": [
+        {
+          "name": "Within radius (5 km) - A and B",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const baseUrl = pm.variables.get('baseUrl');",
+                  "const random = Date.now() + Math.random();",
+                  "const annotation = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const description = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const firstTitle = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const secondTitle = \"bbbbbbbbbbbbbbbbbbbb\" + random;",
+                  "const fmt = d => d.toISOString().slice(0,19).replace('T',' ');",
+                  "const now = new Date();",
+                  "pm.sendRequest({ url: baseUrl + '/admin/users', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'u'+random, email: 'e'+random+'@t.com' }) } }, (err, uRes) => {",
+                  "    if (!uRes || uRes.code !== 201) { console.error('User failed: '+(uRes&&uRes.code)); return; }",
+                  "    const userId = uRes.json().id;",
+                  "    pm.sendRequest({ url: baseUrl + '/admin/categories', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'c'+random }) } }, (err, cRes) => {",
+                  "        if (!cRes || cRes.code !== 201) { console.error('Cat failed: '+(cRes&&cRes.code)); return; }",
+                  "        const catId = cRes.json().id;",
+                  "        pm.sendRequest({ url: baseUrl + '/admin/locations', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'loc'+random, lat: 55.7522, lon: 37.6156, radius: 5.0 }) } }, (err, lRes) => {",
+                  "            if (!lRes || lRes.code !== 201) { console.error('Loc failed: '+(lRes&&lRes.code)); return; }",
+                  "            const locId = lRes.json().id;",
+                  "            pm.sendRequest({ url: baseUrl + '/users/' + userId + '/events', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ annotation: annotation, category: catId, description: description, eventDate: fmt(new Date(now.getTime()+70*3600000)), location: { lat: 55.7522, lon: 37.6156 }, paid: false, participantLimit: 0, requestModeration: true, title: firstTitle }) } }, (err, eARes) => {",
+                  "                if (!eARes || eARes.code !== 201) { console.error('EventA failed: '+(eARes&&eARes.code)); return; }",
+                  "                const eA = eARes.json().id;",
+                  "                pm.sendRequest({ url: baseUrl + '/admin/events/' + eA, method: 'PATCH', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ stateAction: 'PUBLISH_EVENT' }) } }, (err, pARes) => {",
+                  "                    pm.sendRequest({ url: baseUrl + '/users/' + userId + '/events', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ annotation: annotation, category: catId, description: description, eventDate: fmt(new Date(now.getTime()+71*3600000)), location: { lat: 55.7530, lon: 37.6165 }, paid: false, participantLimit: 0, requestModeration: true, title: secondTitle }) } }, (err, eBRes) => {",
+                  "                        if (!eBRes || eBRes.code !== 201) { console.error('EventB failed: '+(eBRes&&eBRes.code)); return; }",
+                  "                        const eB = eBRes.json().id;",
+                  "                        pm.sendRequest({ url: baseUrl + '/admin/events/' + eB, method: 'PATCH', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ stateAction: 'PUBLISH_EVENT' }) } }, (err, pBRes) => {",
+                  "                            pm.environment.set('searchLocId', locId);",
+                  "                            pm.environment.set('eventA', eA);",
+                  "                            pm.environment.set('eventB', eB);",
+                  "                        });",
+                  "                    });",
+                  "                });",
+                  "            });",
+                  "        });",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    const events = pm.response.json();",
+                  "    pm.test('At least 2 events', () => pm.expect(events.length).to.be.at.least(2));",
+                  "    const ids = events.map(e => e.id);",
+                  "    pm.test('Contains A', () => pm.expect(ids).to.include(pm.environment.get('eventA')));",
+                  "    pm.test('Contains B', () => pm.expect(ids).to.include(pm.environment.get('eventB')));",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations/{{searchLocId}}/events?from=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations",
+                "{{searchLocId}}",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Larger radius (50 km) - includes C",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const baseUrl = pm.variables.get('baseUrl');",
+                  "const random = Date.now() + Math.random();",
+                  "const annotation = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const description = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const firstTitle = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const fmt = d => d.toISOString().slice(0,19).replace('T',' ');",
+                  "pm.sendRequest({ url: baseUrl + '/admin/users', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'u'+random, email: 'e'+random+'@t.com' }) } }, (err, uRes) => {",
+                  "    if (!uRes || uRes.code !== 201) { console.error('User failed: '+(uRes&&uRes.code)); return; }",
+                  "    const userId = uRes.json().id;",
+                  "    pm.sendRequest({ url: baseUrl + '/admin/categories', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'c'+random }) } }, (err, cRes) => {",
+                  "        if (!cRes || cRes.code !== 201) { console.error('Cat failed: '+(cRes&&cRes.code)); return; }",
+                  "        const catId = cRes.json().id;",
+                  "        pm.sendRequest({ url: baseUrl + '/admin/locations', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'loc'+random, lat: 55.7522, lon: 37.6156, radius: 50.0 }) } }, (err, lRes) => {",
+                  "            if (!lRes || lRes.code !== 201) { console.error('Loc failed: '+(lRes&&lRes.code)); return; }",
+                  "            const locId = lRes.json().id;",
+                  "            pm.sendRequest({ url: baseUrl + '/users/' + userId + '/events', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ annotation: annotation, category: catId, description: description, eventDate: fmt(new Date(Date.now()+72*3600000)), location: { lat: 55.8000, lon: 37.7000 }, paid: false, participantLimit: 0, requestModeration: true, title: firstTitle }) } }, (err, eCRes) => {",
+                  "                if (!eCRes || eCRes.code !== 201) { console.error('EventC failed: '+(eCRes&&eCRes.code)); return; }",
+                  "                const eC = eCRes.json().id;",
+                  "                pm.sendRequest({ url: baseUrl + '/admin/events/' + eC, method: 'PATCH', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ stateAction: 'PUBLISH_EVENT' }) } }, (err, pCRes) => {",
+                  "                    pm.environment.set('bigRadiusLocId', locId);",
+                  "                    pm.environment.set('eventC', eC);",
+                  "                });",
+                  "            });",
+                  "        });",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    const ids = pm.response.json().map(e => e.id);",
+                  "    pm.test('Contains C', () => pm.expect(ids).to.include(pm.environment.get('eventC')));",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations/{{bigRadiusLocId}}/events?from=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations",
+                "{{bigRadiusLocId}}",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tiny radius (0.1 km) - empty list",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: pm.variables.get('baseUrl') + '/admin/locations',",
+                  "    method: 'POST',",
+                  "    header: { 'Content-Type': 'application/json' },",
+                  "    body: { mode: 'raw', raw: JSON.stringify({ name: 'TinyLoc' + Date.now() + Math.random(), lat: -33.8688, lon: 151.2093, radius: 0.1 }) }",
+                  "}, (err, res) => {",
+                  "    if (res.code === 201) pm.environment.set('tinyLocId', res.json().id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) pm.test('Empty', () => pm.expect(pm.response.json()).to.be.an('array').that.is.empty);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations/{{tinyLocId}}/events?from=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations",
+                "{{tinyLocId}}",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search with pagination (page 1)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const baseUrl = pm.variables.get('baseUrl');",
+                  "const random = Date.now() + Math.random();",
+                  "const annotation = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const description = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const firstTitle = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const secondTitle = \"bbbbbbbbbbbbbbbbbbbb\" + random;",
+                  "const fmt = d => d.toISOString().slice(0,19).replace('T',' ');",
+                  "const now = new Date();",
+                  "pm.sendRequest({ url: baseUrl + '/admin/users', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'u'+random, email: 'e'+random+'@t.com' }) } }, (err, uRes) => {",
+                  "    if (!uRes || uRes.code !== 201) { console.error('User failed: '+(uRes&&uRes.code)); return; }",
+                  "    const userId = uRes.json().id;",
+                  "    pm.sendRequest({ url: baseUrl + '/admin/categories', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'c'+random }) } }, (err, cRes) => {",
+                  "        if (!cRes || cRes.code !== 201) { console.error('Cat failed: '+(cRes&&cRes.code)); return; }",
+                  "        const catId = cRes.json().id;",
+                  "        pm.sendRequest({ url: baseUrl + '/admin/locations', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'l'+random, lat: 55.7522, lon: 37.6156, radius: 5.0 }) } }, (err, lRes) => {",
+                  "            if (!lRes || lRes.code !== 201) { console.error('Loc failed: '+(lRes&&lRes.code)); return; }",
+                  "            const locId = lRes.json().id;",
+                  "            pm.sendRequest({ url: baseUrl + '/users/' + userId + '/events', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ annotation: annotation, category: catId, description: description, eventDate: fmt(new Date(now.getTime()+70*3600000)), location: { lat: 55.7522, lon: 37.6156 }, paid: false, participantLimit: 0, requestModeration: true, title: firstTitle }) } }, (err, e1Res) => {",
+                  "                if (!e1Res || e1Res.code !== 201) { console.error('Event1 failed: '+(e1Res&&e1Res.code)); return; }",
+                  "                const e1 = e1Res.json().id;",
+                  "                pm.sendRequest({ url: baseUrl + '/users/' + userId + '/events', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ annotation: annotation, category: catId, description: description, eventDate: fmt(new Date(now.getTime()+71*3600000)), location: { lat: 55.7530, lon: 37.6165 }, paid: false, participantLimit: 0, requestModeration: true, title: secondTitle }) } }, (err, e2Res) => {",
+                  "                    if (!e2Res || e2Res.code !== 201) { console.error('Event2 failed: '+(e2Res&&e2Res.code)); return; }",
+                  "                    const e2 = e2Res.json().id;",
+                  "                    pm.sendRequest({ url: baseUrl + '/admin/events/' + e1, method: 'PATCH', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ stateAction: 'PUBLISH_EVENT' }) } }, (err, p1Res) => {",
+                  "                        pm.sendRequest({ url: baseUrl + '/admin/events/' + e2, method: 'PATCH', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ stateAction: 'PUBLISH_EVENT' }) } }, (err, p2Res) => {",
+                  "                            pm.environment.set('pagLocId', locId);",
+                  "                        });",
+                  "                    });",
+                  "                });",
+                  "            });",
+                  "        });",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    const events = pm.response.json();",
+                  "    pm.test('Page 1 has 1 event', () => pm.expect(events.length).to.eql(1));",
+                  "    if (events.length > 0) pm.environment.set('p1Id', events[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations/{{pagLocId}}/events?from=0&size=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations",
+                "{{pagLocId}}",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search with pagination (page 2)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const baseUrl = pm.variables.get('baseUrl');",
+                  "const random = Date.now() + Math.random();",
+                  "const annotation = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const description = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const firstTitle = \"abcdeabcdeabcdeabcde\" + random;",
+                  "const secondTitle = \"bbbbbbbbbbbbbbbbbbbb\" + random;",
+                  "const fmt = d => d.toISOString().slice(0,19).replace('T',' ');",
+                  "const now = new Date();",
+                  "pm.sendRequest({ url: baseUrl + '/admin/users', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'u'+random, email: 'e'+random+'@t.com' }) } }, (err, uRes) => {",
+                  "    if (!uRes || uRes.code !== 201) { console.error('User failed: '+(uRes&&uRes.code)); return; }",
+                  "    const userId = uRes.json().id;",
+                  "    pm.sendRequest({ url: baseUrl + '/admin/categories', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'c'+random }) } }, (err, cRes) => {",
+                  "        if (!cRes || cRes.code !== 201) { console.error('Cat failed: '+(cRes&&cRes.code)); return; }",
+                  "        const catId = cRes.json().id;",
+                  "        pm.sendRequest({ url: baseUrl + '/admin/locations', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ name: 'l'+random, lat: 55.7522, lon: 37.6156, radius: 5.0 }) } }, (err, lRes) => {",
+                  "            if (!lRes || lRes.code !== 201) { console.error('Loc failed: '+(lRes&&lRes.code)); return; }",
+                  "            const locId = lRes.json().id;",
+                  "            pm.sendRequest({ url: baseUrl + '/users/' + userId + '/events', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ annotation: annotation, category: catId, description: description, eventDate: fmt(new Date(now.getTime()+70*3600000)), location: { lat: 55.7522, lon: 37.6156 }, paid: false, participantLimit: 0, requestModeration: true, title: firstTitle }) } }, (err, e1Res) => {",
+                  "                if (!e1Res || e1Res.code !== 201) { console.error('Event1 failed: '+(e1Res&&e1Res.code)); return; }",
+                  "                const e1 = e1Res.json().id;",
+                  "                pm.sendRequest({ url: baseUrl + '/users/' + userId + '/events', method: 'POST', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ annotation: annotation, category: catId, description: description, eventDate: fmt(new Date(now.getTime()+71*3600000)), location: { lat: 55.7530, lon: 37.6165 }, paid: false, participantLimit: 0, requestModeration: true, title: secondTitle }) } }, (err, e2Res) => {",
+                  "                    if (!e2Res || e2Res.code !== 201) { console.error('Event2 failed: '+(e2Res&&e2Res.code)); return; }",
+                  "                    const e2 = e2Res.json().id;",
+                  "                    pm.sendRequest({ url: baseUrl + '/admin/events/' + e1, method: 'PATCH', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ stateAction: 'PUBLISH_EVENT' }) } }, (err, p1Res) => {",
+                  "                        pm.sendRequest({ url: baseUrl + '/admin/events/' + e2, method: 'PATCH', header: { 'Content-Type': 'application/json' }, body: { mode: 'raw', raw: JSON.stringify({ stateAction: 'PUBLISH_EVENT' }) } }, (err, p2Res) => {",
+                  "                            pm.environment.set('pagLocId2', locId);",
+                  "                        });",
+                  "                    });",
+                  "                });",
+                  "            });",
+                  "        });",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "    const events = pm.response.json();",
+                  "    if (events.length > 0) pm.test('Different from page 1', () => pm.expect(events[0].id).to.not.eql(pm.environment.get('p1Id')));",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations/{{pagLocId2}}/events?from=1&size=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations",
+                "{{pagLocId2}}",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Non-existing location - 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations/9999/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations",
+                "9999",
+                "events"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Empty location (no events)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.sendRequest({",
+                  "    url: pm.variables.get('baseUrl') + '/admin/locations',",
+                  "    method: 'POST',",
+                  "    header: { 'Content-Type': 'application/json' },",
+                  "    body: { mode: 'raw', raw: JSON.stringify({ name: 'EmptyLoc' + Date.now() + Math.random(), lat: 0, lon: 0, radius: 10 }) }",
+                  "}, (err, res) => {",
+                  "    if (res.code === 201) pm.environment.set('emptyLocId', res.json().id);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) pm.test('Empty', () => pm.expect(pm.response.json()).to.be.an('array').that.is.empty);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/locations/{{emptyLocId}}/events?from=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "locations",
+                "{{emptyLocId}}",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "adminPath",
+      "value": "/admin/locations"
+    }
+  ]
+}

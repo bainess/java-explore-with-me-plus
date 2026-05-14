@@ -21,6 +21,7 @@ import ru.practicum.explorewithme.service.event.model.Location;
 import ru.practicum.explorewithme.service.exception.BadRequestException;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
+import ru.practicum.explorewithme.service.location.dal.LocationRepository;
 import ru.practicum.explorewithme.service.request.dal.EventRequestRepository;
 import ru.practicum.explorewithme.service.request.enums.ParticipationRequestStatus;
 import ru.practicum.explorewithme.service.user.dal.UserRepository;
@@ -36,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +53,8 @@ class EventServiceImplTest {
     private EventRequestRepository requestRepository;
     @Mock
     private StatsClient statsClient;
+    @Mock
+    private LocationRepository locationRepository;
 
     @InjectMocks
     private EventServiceImpl eventService;
@@ -271,5 +275,66 @@ class EventServiceImplTest {
         assertNotNull(dto);
         assertEquals(1L, dto.getId());
         verify(eventRepository).findById(1L);
+    }
+
+    @Test
+    void getEventsByLocation_shouldReturnEventDtos_whenLocationExistsAndEventsFound() {
+        ru.practicum.explorewithme.service.location.model.Location loc =
+                ru.practicum.explorewithme.service.location.model.Location.builder()
+                        .id(1L).name("Moscow").lat(55.75f).lon(37.62f).radius(50f).build();
+        when(locationRepository.findById(1L)).thenReturn(Optional.of(loc));
+
+        Event e = createEventWithDefaults();
+        e.setId(10L);
+        Page<Event> page = new PageImpl<>(List.of(e));
+        when(eventRepository.findEventsByLocation(eq(1L), any(Pageable.class))).thenReturn(page);
+        when(requestRepository.countConfirmedRequestsByEventIds(anyList())).thenReturn(Collections.emptyList());
+        when(statsClient.getStats(any(), any(), any(), any())).thenReturn(ResponseEntity.ok(List.of()));
+
+        List<EventFullDto> result = eventService.getEventsByLocation(1L, 0, 10);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(10L);
+    }
+
+    @Test
+    void getEventsByLocation_shouldReturnEmptyList_whenNoEventsInRadius() {
+        ru.practicum.explorewithme.service.location.model.Location loc =
+                ru.practicum.explorewithme.service.location.model.Location.builder()
+                        .id(2L).name("Antarctica").lat(-90f).lon(0f).radius(1f).build();
+        when(locationRepository.findById(2L)).thenReturn(Optional.of(loc));
+        when(eventRepository.findEventsByLocation(eq(2L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(Collections.emptyList()));
+
+        List<EventFullDto> result = eventService.getEventsByLocation(2L, 0, 10);
+
+        assertThat(result).isEmpty();
+        verify(statsClient, never()).getStats(any(), any(), any(), any());
+    }
+
+    @Test
+    void getEventsByLocation_shouldThrowNotFoundException_whenLocationNotFound() {
+        when(locationRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> eventService.getEventsByLocation(99L, 0, 10))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("99");
+
+        verify(eventRepository, never()).findEventsByLocation(any(), any());
+    }
+
+    @Test
+    void getEventsByLocation_shouldPassCorrectPageable_whenFromAndSizeProvided() {
+        ru.practicum.explorewithme.service.location.model.Location loc =
+                ru.practicum.explorewithme.service.location.model.Location.builder()
+                        .id(1L).name("Moscow").lat(55.75f).lon(37.62f).radius(50f).build();
+        when(locationRepository.findById(1L)).thenReturn(Optional.of(loc));
+        when(eventRepository.findEventsByLocation(eq(1L), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(Collections.emptyList()));
+
+        eventService.getEventsByLocation(1L, 20, 10);
+
+        verify(eventRepository).findEventsByLocation(eq(1L),
+                eq(PageRequest.of(2, 10)));
     }
 }

@@ -22,6 +22,7 @@ import ru.practicum.explorewithme.service.event.service.predicate.EventPredicate
 import ru.practicum.explorewithme.service.exception.BadRequestException;
 import ru.practicum.explorewithme.service.exception.ConflictException;
 import ru.practicum.explorewithme.service.exception.NotFoundException;
+import ru.practicum.explorewithme.service.location.dal.LocationRepository;
 import ru.practicum.explorewithme.service.request.dal.EventRequestRepository;
 import ru.practicum.explorewithme.service.request.dto.ConfirmedRequestsCount;
 import ru.practicum.explorewithme.service.request.enums.ParticipationRequestStatus;
@@ -33,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -48,6 +50,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final EventRequestRepository requestRepository;
     private final StatsClient statsClient;
+    private final LocationRepository locationRepository;
 
     @Override
     @Transactional
@@ -177,6 +180,53 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toFullDto(event, confirmed, 0L);
     }
 
+    @Override
+    public List<EventFullDto> getEventsByLocation(Long locId, int from, int size) {
+        locationRepository.findById(locId)
+                .orElseThrow(() -> new NotFoundException("Локация " + locId + " не найдена"));
+
+        Pageable pageable = PageRequest.of(from / size, size);
+        Page<Event> page = eventRepository.findEventsByLocation(locId, pageable);
+
+        if (page.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Event> events = page.getContent();
+        Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
+        Map<Long, Long> views = getViewsMap(events);
+
+        return events.stream()
+                .map(e -> EventMapper.toFullDto(e,
+                        confirmedRequests.getOrDefault(e.getId(), 0L),
+                        views.getOrDefault(e.getId(), 0L)))
+                .collect(Collectors.toList());
+    }
+
+    private Map<Long, Long> getViewsMap(List<Event> events) {
+        if (events.isEmpty()) return Collections.emptyMap();
+
+        List<String> uris = events.stream()
+                .map(e -> "/events/" + e.getId())
+                .collect(Collectors.toList());
+
+        LocalDateTime start = events.stream()
+                .map(Event::getCreatedOn)
+                .min(LocalDateTime::compareTo)
+                .orElse(LocalDateTime.now().minusYears(10));
+
+        Map<Long, Long> viewsMap = new HashMap<>();
+        long views = 0;
+        try {
+            ResponseEntity<List<ViewStatsDTO>> response = statsClient.getStats(start, LocalDateTime.now(), uris, true);
+            List<ViewStatsDTO> stats = response.getBody();
+            views = (stats == null) ? 0 : stats.getFirst().getHits();
+        } catch (Exception e) {
+            log.error("Ошибка при получении статистики для событий: {}", e.getMessage());
+        }
+        return viewsMap;
+    }
+
     private Map<Long, Long> getConfirmedRequests(List<Event> events) {
         if (events.isEmpty()) return Collections.emptyMap();
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
@@ -226,12 +276,11 @@ public class EventServiceImpl implements EventService {
         LocalDateTime dateTime = LocalDateTime.parse(event.getCreatedOn(), FORMATTER);
         long views = 0;
         try {
-
             ResponseEntity<List<ViewStatsDTO>> response = statsClient.getStats(dateTime, LocalDateTime.now(), List.of("/events/" + eventId), true);
             List<ViewStatsDTO> stats = response.getBody();
             views = (stats == null) ? 0 : stats.getFirst().getHits();
         } catch (Exception e) {
-            log.warn("Ошибка при получении статистики для события {}: {}", eventId, e.getMessage());
+            log.error("Ошибка при получении статистики для события {}: {}", eventId, e.getMessage());
         }
         return views;
 
